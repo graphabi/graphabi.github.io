@@ -201,10 +201,29 @@
       moveRail();
     };
 
-    const open = () => {
+    // The dialog expands from whichever control opened it, so the panel reads
+    // as that node unfolding rather than as a sheet arriving from nowhere.
+    const open = (event) => {
       previous = document.activeElement;
       modal.hidden = false;
       document.body.classList.add("modal-open");
+
+      const trigger = event && event.currentTarget;
+      if (trigger && !reduced.matches) {
+        const t = trigger.getBoundingClientRect();
+        requestAnimationFrame(() => {
+          const d = dialog.getBoundingClientRect();
+          if (d.width && d.height) {
+            const ox = ((t.left + t.width / 2 - d.left) / d.width) * 100;
+            const oy = ((t.top + t.height / 2 - d.top) / d.height) * 100;
+            dialog.style.transformOrigin =
+              `${Math.max(-20, Math.min(120, ox))}% ${Math.max(-20, Math.min(120, oy))}%`;
+          }
+        });
+      } else {
+        dialog.style.transformOrigin = "";
+      }
+
       requestAnimationFrame(() => {
         modal.classList.add("is-open");
         moveRail();
