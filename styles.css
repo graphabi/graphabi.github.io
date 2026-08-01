@@ -1504,31 +1504,55 @@ h1 { margin-bottom: var(--s4) }
 
 /* ========================================================= roadmap === */
 
+/* Planned work is drawn as an edge that has not been connected yet: a hollow
+   node on a dashed stub. Hovering completes it. Nothing here is shipped, and
+   the graph says so before the label does. */
 .roadmap-rail { border-top: 1px solid var(--border) }
 .roadmap-rail a {
   position: relative;
   display: grid;
-  grid-template-columns: 56px 1fr auto;
+  grid-template-columns: 44px 64px 1fr auto;
   align-items: center;
-  gap: var(--s3);
-  min-height: 80px;
-  padding: 0 var(--s2);
+  gap: var(--s2);
+  min-height: 84px;
+  padding: 0 var(--s2) 0 0;
   border-bottom: 1px solid var(--border);
-  transition: background var(--t-fast) var(--ease), padding-left var(--t-fast) var(--ease);
+  transition: background var(--t-fast) var(--ease);
 }
-/* Hovering a roadmap row lights the edge that leads into it. */
+/* The unconnected stub. */
 .roadmap-rail a::before {
   content: "";
   position: absolute;
-  left: 0; top: 50%;
-  width: 0; height: 1.5px;
-  margin-top: -.75px;
-  background: var(--pulse);
-  transition: width var(--t-mid) var(--ease);
+  left: 71px; top: 50%;
+  width: 53px; height: 0;
+  margin-top: -1px;
+  border-top: 2px dashed var(--edge);
+  transition: border-color var(--t-mid) var(--ease);
 }
-.roadmap-rail a:hover { background: var(--surface); padding-left: var(--s4) }
-.roadmap-rail a:hover::before { width: var(--s3) }
-.roadmap-rail span, .roadmap-rail small { color: var(--subtle); font: .75rem var(--mono) }
+/* The open node it fails to reach. */
+.roadmap-rail a::after {
+  content: "";
+  position: absolute;
+  left: 60px; top: 50%;
+  width: 9px; height: 9px;
+  margin-top: -4.5px;
+  border: 1.5px solid var(--edge);
+  border-radius: 50%;
+  background: var(--bg);
+  transition: border-color var(--t-mid) var(--ease), background var(--t-mid) var(--ease);
+}
+.roadmap-rail a:hover, .roadmap-rail a:focus-visible { background: var(--surface) }
+.roadmap-rail a:hover::before, .roadmap-rail a:focus-visible::before {
+  border-top-style: solid;
+  border-top-color: var(--unknown);
+}
+.roadmap-rail a:hover::after, .roadmap-rail a:focus-visible::after {
+  border-color: var(--unknown);
+  background: var(--unknown);
+}
+.roadmap-rail strong { grid-column: 3 }
+.roadmap-rail span { grid-column: 1; padding-left: var(--s2); color: var(--subtle); font: .75rem var(--mono) }
+.roadmap-rail small { color: var(--subtle); font: .75rem var(--mono) }
 .roadmap-rail strong { font-size: 1.0625rem; font-weight: 600; letter-spacing: -.018em }
 .roadmap-rail small { color: var(--unknown-text); letter-spacing: .08em; text-transform: uppercase }
 
@@ -1918,9 +1942,11 @@ body.modal-open { overflow: hidden }
   .yaml, .terminal pre, .payload pre { font-size: .75rem }
   .arch-frame { padding: var(--s2) }
 
-  .roadmap-rail a { grid-template-columns: 40px 1fr; gap: var(--s2); min-height: 0; padding: var(--s2) }
-  .roadmap-rail a:hover { padding-left: var(--s3) }
-  .roadmap-rail small { grid-column: 2 }
+  .roadmap-rail a { grid-template-columns: 36px 22px 1fr; gap: var(--s1); min-height: 0; padding: var(--s2) var(--s1) var(--s2) 0 }
+  .roadmap-rail span { padding-left: var(--s1) }
+  .roadmap-rail a::after { left: 36px }
+  .roadmap-rail a::before { left: 47px; width: 15px }
+  .roadmap-rail small { grid-column: 3; grid-row: 2 }
 
   .final-cta { padding: var(--s6) var(--s3); border-radius: var(--radius) }
   .cta-mark { width: 120px }
