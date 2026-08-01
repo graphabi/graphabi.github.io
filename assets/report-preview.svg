@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI trace-backed compatibility report</title>
+  <desc id="desc">The report shows structural compatibility passing, semantic compatibility breaking, the first broken edge, its witness, downstream path, and repair location.</desc>
+  <rect width="1200" height="720" rx="18" fill="#0B0F14"/>
+  <rect x="1" y="1" width="1198" height="718" rx="17" fill="none" stroke="#273241" stroke-width="2"/>
+  <g font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <g transform="translate(38 26)"><circle cx="9" cy="24" r="5" fill="#A78BFA"/><path d="M14 24H28M36 24H50" fill="none" stroke-width="4" stroke-linecap="round" stroke="#556070"/><path d="M14 24H28" stroke="#A78BFA" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="24" r="5" fill="#556070"/><path d="M29 18L35 23M29 25L35 30" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/><text x="74" y="33" fill="#F8FAFC" font-size="25" font-weight="650">GraphABI report</text></g>
+    <text x="38" y="99" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="1.4">RESEARCH_DEMO · CANDIDATE-003 · REPORT 0.1</text>
+    <text x="38" y="138" fill="#F8FAFC" font-size="28" font-weight="650">The schema passed. Meaning broke at the first edge.</text>
+    <g transform="translate(38 165)"><rect width="225" height="78" rx="10" fill="#101C17" stroke="#205E39"/><text x="16" y="27" fill="#94A3B8" font-size="10" font-weight="700" letter-spacing="1.1">STRUCTURAL</text><text x="16" y="58" fill="#22C55E" font-family="SFMono-Regular,Consolas,monospace" font-size="19" font-weight="700">✓ PASS</text></g>
+    <g transform="translate(279 165)"><rect width="225" height="78" rx="10" fill="#211315" stroke="#6F2429"/><text x="16" y="27" fill="#94A3B8" font-size="10" font-weight="700" letter-spacing="1.1">SEMANTIC</text><text x="16" y="58" fill="#EF4444" font-family="SFMono-Regular,Consolas,monospace" font-size="19" font-weight="700">× BREAKING</text></g>
+    <g transform="translate(520 165)"><rect width="642" height="78" rx="10" fill="#121820" stroke="#273241"/><text x="16" y="27" fill="#94A3B8" font-size="10" font-weight="700" letter-spacing="1.1">FIRST BREAKING EDGE</text><text x="16" y="58" fill="#F8FAFC" font-family="SFMono-Regular,Consolas,monospace" font-size="17" font-weight="700">researcher → verifier</text><text x="590" y="55" text-anchor="end" fill="#EF4444" font-size="11" font-weight="700">3 BREAKING</text></g>
+  </g>
+  <g transform="translate(38 290)" font-family="SFMono-Regular,Consolas,monospace">
+    <path d="M190 48H280M456 48H546M746 48H836" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".75"/>
+    <g><rect width="190" height="96" rx="10" fill="#121820" stroke="#556070"/><text x="16" y="48" fill="#F8FAFC" font-size="14" font-weight="700">researcher</text><text x="16" y="70" fill="#94A3B8" font-size="10">producer</text></g>
+    <g transform="translate(280)"><rect width="176" height="96" rx="10" fill="#1C1418" stroke="#EF4444" stroke-width="2"/><text x="16" y="48" fill="#F8FAFC" font-size="14" font-weight="700">verifier</text><text x="16" y="70" fill="#EF4444" font-size="10">direct impact</text></g>
+    <g transform="translate(546)"><rect width="200" height="96" rx="10" fill="#17171C" stroke="#66363B"/><text x="16" y="48" fill="#F8FAFC" font-size="14" font-weight="700">decision_maker</text><text x="16" y="70" fill="#EF8080" font-size="10">transitive</text></g>
+    <g transform="translate(836)"><rect width="228" height="96" rx="10" fill="#17171C" stroke="#66363B"/><text x="16" y="48" fill="#F8FAFC" font-size="14" font-weight="700">publisher</text><text x="16" y="70" fill="#EF8080" font-size="10">terminal · side effect</text></g>
+    <path d="M190 48H254" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/><circle cx="254" cy="48" r="7" fill="#A78BFA"/><g transform="translate(258 35)" stroke="#EF4444" stroke-width="4" stroke-linecap="round"><path d="M0 0L13 11M0 14L13 25"/></g>
+  </g>
+  <g transform="translate(38 425)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <rect width="1124" height="245" rx="12" fill="#121820" stroke="#3E262B"/>
+    <rect width="5" height="245" rx="2.5" fill="#EF4444"/>
+    <text x="26" y="34" fill="#EF4444" font-size="11" font-weight="700" letter-spacing="1.2">TRACE-BACKED WITNESS · VERIFIED_REQUIRES_OPENED_SUPPORTING_SOURCE</text>
+    <text x="26" y="70" fill="#F8FAFC" font-size="19" font-weight="620">Candidate asserted verification after source access failed.</text>
+    <g transform="translate(26 96)" font-family="SFMono-Regular,Consolas,monospace"><text fill="#94A3B8" font-size="11">EXPECTATION</text><text y="30" fill="#22C55E" font-size="14">opened_sources_count &gt; 0</text></g>
+    <g transform="translate(493 96)" font-family="SFMono-Regular,Consolas,monospace"><text fill="#94A3B8" font-size="11">OBSERVED · CANDIDATE-003</text><text y="30" fill="#EF4444" font-size="14">opened_sources_count = 0</text></g>
+    <path d="M26 154H1098" stroke="#273241"/>
+    <text x="26" y="185" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="1.1">NEAREST REPAIR</text><text x="26" y="211" fill="#F8FAFC" font-size="14">Before verifier consumes the researcher result.</text>
+    <text x="590" y="185" fill="#94A3B8" font-size="11" font-weight="700" letter-spacing="1.1">AFFECTED TERMINAL PATH</text><text x="590" y="211" fill="#F8FAFC" font-family="SFMono-Regular,Consolas,monospace" font-size="13">verifier → decision_maker → publisher</text>
+  </g>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" role="img" aria-label="GraphABI">
+  <rect width="16" height="16" rx="3.5" fill="#0B0F14"/>
+  <circle cx="2.5" cy="8" r="1.5" fill="#A78BFA"/>
+  <path d="M4 8H6.6M9.4 8H12" fill="none" stroke="#A78BFA" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="13.5" cy="8" r="1.5" fill="#556070"/>
+  <path d="M7.05 5.8L8.95 7.45M7.05 8.55L8.95 10.2" fill="none" stroke="#EF4444" stroke-width="1.35" stroke-linecap="round"/>
+</svg>

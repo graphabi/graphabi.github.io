@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI architecture as semantic flow</title>
+  <desc id="desc">Framework adapters emit versioned traces, contracts check edge observations, impact analysis traces affected nodes, and reports explain a witness and repair location.</desc>
+  <style>
+    .pulse{offset-path:path('M208 205H286M454 205H532M700 205H778M946 205H1024');animation:travel 4s cubic-bezier(.22,1,.36,1) 1 forwards}
+    .stage{opacity:.68;animation:activate .32s cubic-bezier(.22,1,.36,1) forwards}.s2{animation-delay:.55s}.s3{animation-delay:1.1s}.s4{animation-delay:1.65s}.s5{animation-delay:2.2s}
+    @keyframes travel{0%{offset-distance:0;opacity:0}5%{opacity:1}95%{opacity:1}100%{offset-distance:100%;opacity:0}}
+    @keyframes activate{to{opacity:1}}
+    @media(prefers-reduced-motion:reduce){.pulse{animation:none;display:none}.stage{animation:none;opacity:1}}
+  </style>
+  <rect width="1200" height="430" rx="18" fill="#0B0F14"/>
+  <rect x="1" y="1" width="1198" height="428" rx="17" fill="none" stroke="#273241" stroke-width="2"/>
+  <text x="44" y="56" fill="#94A3B8" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="12" font-weight="700" letter-spacing="1.5">FRAMEWORK-INDEPENDENT SEMANTIC COMPATIBILITY PIPELINE</text>
+  <g transform="translate(44 145)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <path d="M164 60H242M410 60H488M656 60H734M902 60H980" stroke="#556070" stroke-width="3" stroke-linecap="round"/>
+    <g class="stage s1"><rect width="164" height="120" rx="12" fill="#121820" stroke="#556070"/><text x="18" y="35" fill="#A78BFA" font-size="11" font-weight="700" letter-spacing="1">FLOW</text><text x="18" y="67" fill="#F8FAFC" font-size="16" font-weight="620">Adapters</text><text x="18" y="91" fill="#94A3B8" font-size="12">LangGraph today</text></g>
+    <g class="stage s2" transform="translate(242)"><rect width="168" height="120" rx="12" fill="#121820" stroke="#556070"/><text x="18" y="35" fill="#A78BFA" font-size="11" font-weight="700" letter-spacing="1">RECORD</text><text x="18" y="67" fill="#F8FAFC" font-size="16" font-weight="620">Trace model</text><text x="18" y="91" fill="#94A3B8" font-size="12">SQLite · JSONL</text></g>
+    <g class="stage s3" transform="translate(488)"><rect width="168" height="120" rx="12" fill="#121820" stroke="#8B5CF6"/><text x="18" y="35" fill="#A78BFA" font-size="11" font-weight="700" letter-spacing="1">CHECK</text><text x="18" y="67" fill="#F8FAFC" font-size="16" font-weight="620">Contracts</text><text x="18" y="91" fill="#94A3B8" font-size="12">Evaluator registry</text></g>
+    <g class="stage s4" transform="translate(734)"><rect width="168" height="120" rx="12" fill="#121820" stroke="#EF4444"/><text x="18" y="35" fill="#EF4444" font-size="11" font-weight="700" letter-spacing="1">TRACE</text><text x="18" y="67" fill="#F8FAFC" font-size="16" font-weight="620">Impact</text><text x="18" y="91" fill="#94A3B8" font-size="12">NetworkX paths</text></g>
+    <g class="stage s5" transform="translate(980)"><rect width="132" height="120" rx="12" fill="#121820" stroke="#556070"/><text x="18" y="35" fill="#22C55E" font-size="11" font-weight="700" letter-spacing="1">EXPLAIN</text><text x="18" y="67" fill="#F8FAFC" font-size="16" font-weight="620">Reports</text><text x="18" y="91" fill="#94A3B8" font-size="12">JSON · HTML</text></g>
+    <circle class="pulse" cx="0" cy="0" r="7" fill="#A78BFA"/>
+  </g>
+  <g transform="translate(44 312)" font-family="SFMono-Regular,Consolas,monospace" font-size="12">
+    <text fill="#94A3B8">core boundary</text><path d="M108 0H272" stroke="#273241"/>
+    <text x="292" fill="#F8FAFC">TraceBundle 0.1</text>
+    <text x="445" fill="#556070">→</text>
+    <text x="474" fill="#F8FAFC">CompatibilityReport 0.1</text>
+    <text x="687" fill="#556070">→</text>
+    <text x="716" fill="#22C55E">deterministic evidence</text>
+  </g>
+  <text x="44" y="382" fill="#64748B" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="12">Framework types stop at adapters. Report presentation never decides compatibility.</text>
+</svg>
