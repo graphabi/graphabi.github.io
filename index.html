@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="GraphABI is Semantic Compatibility Infrastructure for agent graphs. Find the first edge where valid structure carries incompatible meaning.">
-  <meta name="theme-color" content="#F8FAFC">
+  <meta name="theme-color" content="#FBFCFD" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
   <meta name="color-scheme" content="light dark">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://graphabi.github.io/">
@@ -19,24 +20,39 @@
   <link rel="stylesheet" href="styles.css">
   <title>GraphABI: Semantic Compatibility Infrastructure</title>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"GraphABI","description":"Semantic Compatibility Infrastructure for agent graphs.","codeRepository":"https://github.com/graphabi/graphabi","license":"https://www.apache.org/licenses/LICENSE-2.0","programmingLanguage":"Python","url":"https://graphabi.github.io/"}</script>
+  <script defer src="field.js"></script>
   <script defer src="motion.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!--
+    The ambient field is the unbounded semantic flow of a live agent graph:
+    organic, continuous, never resolving. Every product surface below it is
+    the opposite by design: precise, deterministic, and it stops.
+  -->
+  <canvas class="field" data-field aria-hidden="true"></canvas>
+  <div class="field-veil" aria-hidden="true"></div>
+
   <header class="site-header">
     <nav class="shell nav" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="GraphABI home">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
-          <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
-          <img src="assets/logo-light.svg" width="207" height="48" alt="GraphABI">
-        </picture>
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="30" height="30" focusable="false">
+            <circle cx="9" cy="32" r="5" class="m-live"/>
+            <path d="M14 32H28" class="m-live-stroke"/>
+            <path d="M36 32H50" class="m-dead-stroke"/>
+            <circle cx="55" cy="32" r="5" class="m-dead"/>
+            <path d="M29 26L35 31M29 33L35 38" class="m-cut"/>
+          </svg>
+        </span>
+        <span class="brand-word">GraphABI</span>
       </a>
       <div class="nav-links">
-        <a href="#contracts">Contracts</a>
-        <a href="#architecture">Architecture</a>
-        <a href="https://github.com/graphabi/graphabi/tree/main/docs">Docs</a>
-        <a class="nav-github" href="https://github.com/graphabi/graphabi">GitHub <span aria-hidden="true">↗</span></a>
+        <a href="#contracts"><span>Contracts</span></a>
+        <a href="#architecture"><span>Architecture</span></a>
+        <a href="https://github.com/graphabi/graphabi/tree/main/docs"><span>Docs</span></a>
+        <a class="nav-github" href="https://github.com/graphabi/graphabi">GitHub <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
       </div>
     </nav>
   </header>
@@ -44,121 +60,144 @@
   <main id="main">
     <section id="top" class="hero shell" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">Semantic Compatibility Infrastructure</p>
-        <h1 id="hero-title">Your schema passed.<br>Your agent still <span>broke.</span></h1>
+        <p class="eyebrow"><i aria-hidden="true"></i>Semantic Compatibility Infrastructure</p>
+        <h1 id="hero-title"><span class="line">Your schema passed.</span><span class="line">Your agent still <em>broke.</em></span></h1>
         <p class="hero-lede">GraphABI finds the first edge where meaning changed, shows the exact recorded witness, and traces every downstream node that may be affected.</p>
         <div class="hero-actions">
           <button class="button primary" type="button" data-open-setup>Try GraphABI</button>
-          <a class="button secondary" href="https://github.com/graphabi/graphabi">View source <span aria-hidden="true">↗</span></a>
+          <a class="button secondary" href="https://github.com/graphabi/graphabi">View source <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
         </div>
-        <div class="install-line" tabindex="0" aria-label="One-command demo; scroll horizontally if needed">
-          <code>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code>
+        <div class="install-line">
+          <span class="install-prompt" aria-hidden="true">$</span>
+          <code data-copy-source>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code>
+          <button class="install-copy" type="button" data-copy-inline aria-label="Copy demo command">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" class="i-copy"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5H3.5a1 1 0 0 0-1 1v7"/></svg>
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" class="i-done"><path d="M3.5 8.5L6.5 11.5L12.5 5"/></svg>
+          </button>
         </div>
       </div>
 
       <div class="pulse-scene is-complete" data-pulse-scene>
         <div class="scene-toolbar">
-          <div><span class="scene-kicker">Recorded graph</span><span class="scene-phase" data-scene-phase>Break found · researcher → verifier</span></div>
-          <button class="replay" type="button" data-replay>Replay semantic flow</button>
+          <div class="scene-meta">
+            <span class="scene-kicker">Recorded graph</span>
+            <span class="scene-phase" data-scene-phase>Break found · researcher → verifier</span>
+          </div>
+          <button class="replay" type="button" data-replay>
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><path d="M13 8a5 5 0 1 1-1.7-3.8"/><path d="M13.2 2.4V5.2H10.4"/></svg>
+            Replay semantic flow
+          </button>
         </div>
         <div class="scene-status" role="group" aria-label="Compatibility result">
-          <div class="status schema-status"><span>SCHEMA</span><strong>✓ PASS</strong><small>same ResearchResult</small></div>
-          <div class="status semantic-status"><span>SEMANTICS</span><strong>× BREAKING</strong><small>trace-backed</small></div>
+          <div class="status schema-status"><span>Schema</span><strong>✓ PASS</strong><small>same ResearchResult</small></div>
+          <div class="status semantic-status"><span>Semantics</span><strong>× BREAKING</strong><small>trace-backed</small></div>
         </div>
         <div class="graph-flow" role="img" aria-label="The semantic pulse stops between researcher and verifier. Verifier, decision maker, and publisher are affected downstream.">
-          <div class="graph-node producer"><span class="node-pulse" aria-hidden="true"></span><strong>researcher</strong><small>candidate producer</small></div>
-          <div class="graph-edge first-edge"><span class="edge-rail"></span><span class="pulse" aria-hidden="true"></span><span class="break-mark" aria-hidden="true"><i></i><i></i></span><span class="edge-caption">FIRST BREAK</span></div>
-          <div class="graph-node direct"><strong>verifier</strong><small>directly affected</small></div>
-          <div class="graph-edge blast-edge"><span class="edge-rail"></span></div>
-          <div class="graph-node affected"><strong>decision_maker</strong><small>affected downstream</small></div>
-          <div class="graph-edge blast-edge"><span class="edge-rail"></span></div>
-          <div class="graph-node affected terminal"><strong>publisher</strong><small>terminal · side effect</small></div>
+          <div class="graph-node producer"><span class="node-dot" aria-hidden="true"></span><strong>researcher</strong><small>candidate producer</small></div>
+          <div class="graph-edge first-edge"><span class="rail" aria-hidden="true"></span><span class="rail-live" aria-hidden="true"></span><span class="pulse" aria-hidden="true"></span><span class="break-mark" aria-hidden="true"><i></i><i></i></span><span class="edge-caption">First break</span></div>
+          <div class="graph-node direct"><span class="node-dot" aria-hidden="true"></span><strong>verifier</strong><small>directly affected</small></div>
+          <div class="graph-edge blast-edge"><span class="rail" aria-hidden="true"></span></div>
+          <div class="graph-node affected"><span class="node-dot" aria-hidden="true"></span><strong>decision_maker</strong><small>affected downstream</small></div>
+          <div class="graph-edge blast-edge"><span class="rail" aria-hidden="true"></span></div>
+          <div class="graph-node affected terminal"><span class="node-dot" aria-hidden="true"></span><strong>publisher</strong><small>terminal · side effect</small></div>
         </div>
         <div class="scene-witness" data-scene-witness>
-          <div class="witness-heading"><span>TRACE-BACKED WITNESS · CANDIDATE-003</span><strong>verified=true arrived without an opened supporting source.</strong></div>
-          <div class="witness-values"><div><span>CONTRACT EXPECTED</span><code>opened_sources_count &gt; 0</code></div><div><span>TRACE OBSERVED</span><code>opened_sources_count = 0</code></div></div>
-          <p>Repair before verifier · affected path reaches publisher</p>
+          <div class="witness-heading">
+            <span class="witness-tag"><i aria-hidden="true"></i>Trace-backed witness · candidate-003</span>
+            <strong><code>verified=true</code> arrived without an opened supporting source.</strong>
+          </div>
+          <div class="witness-values">
+            <div><span>Contract expected</span><code class="ok">opened_sources_count &gt; 0</code></div>
+            <div><span>Trace observed</span><code class="bad">opened_sources_count = 0</code></div>
+          </div>
+          <p>Repair before <b>verifier</b> · affected path reaches <b>publisher</b></p>
         </div>
         <p class="sr-only" aria-live="polite" data-scene-live></p>
       </div>
     </section>
 
-    <section id="playground" class="section playground-section shell" aria-labelledby="playground-title">
-      <div class="section-heading">
-        <div><p class="eyebrow">Graph Playground</p><h2 id="playground-title">Run the edge check.</h2></div>
-        <p>Choose the recorded producer output, then watch the semantic pulse travel toward the verifier. The candidate keeps its schema and breaks its meaning.</p>
-      </div>
-      <div class="playground" data-playground>
-        <div class="playground-toolbar" role="group" aria-label="Producer output">
-          <button class="playground-choice is-selected" type="button" data-play-choice="baseline" aria-pressed="true">Baseline</button>
-          <button class="playground-choice" type="button" data-play-choice="candidate" aria-pressed="false">Candidate regression</button>
-          <button class="button secondary playground-run" type="button" data-play-run>Run semantic check</button>
+    <section id="playground" class="section" data-rail-node="Playground" aria-labelledby="playground-title">
+      <div class="shell">
+        <div class="section-heading">
+          <div><p class="eyebrow"><i aria-hidden="true"></i>Graph playground</p><h2 id="playground-title">Run the edge check.</h2></div>
+          <p>Choose the recorded producer output, then watch the semantic pulse travel toward the verifier. The candidate keeps its schema and breaks its meaning.</p>
         </div>
-        <div class="playground-graph" role="img" aria-label="A producer sends a semantic pulse through an edge to a consumer. The pulse passes for baseline and stops at the edge for the candidate.">
-          <div class="playground-node" data-play-node="producer"><span class="node-pulse" aria-hidden="true"></span><strong>researcher</strong><small>producer output</small></div>
-          <div class="playground-edge" data-play-edge><span class="playground-pulse" aria-hidden="true"></span><span class="playground-break" aria-hidden="true"><i></i><i></i></span><small>consumer contract</small></div>
-          <div class="playground-node" data-play-node="consumer"><strong>verifier</strong><small>expects opened support</small></div>
+        <div class="playground" data-playground>
+          <div class="playground-toolbar" role="group" aria-label="Producer output">
+            <div class="segmented">
+              <button class="playground-choice is-selected" type="button" data-play-choice="baseline" aria-pressed="true">Baseline</button>
+              <button class="playground-choice" type="button" data-play-choice="candidate" aria-pressed="false">Candidate regression</button>
+              <span class="segment-thumb" aria-hidden="true"></span>
+            </div>
+            <button class="button secondary playground-run" type="button" data-play-run>Run semantic check</button>
+          </div>
+          <div class="playground-graph" role="img" aria-label="A producer sends a semantic pulse through an edge to a consumer. The pulse passes for baseline and stops at the edge for the candidate.">
+            <div class="playground-node" data-play-node="producer"><span class="node-dot" aria-hidden="true"></span><strong>researcher</strong><small>producer output</small></div>
+            <div class="playground-edge" data-play-edge>
+              <span class="rail" aria-hidden="true"></span><span class="rail-live" aria-hidden="true"></span>
+              <span class="playground-pulse" aria-hidden="true"></span>
+              <span class="playground-break" aria-hidden="true"><i></i><i></i></span>
+              <small>consumer contract</small>
+            </div>
+            <div class="playground-node" data-play-node="consumer"><span class="node-dot" aria-hidden="true"></span><strong>verifier</strong><small>expects opened support</small></div>
+          </div>
+          <div class="playground-result" data-play-result aria-live="polite"><strong>Select an output and run the check.</strong><span>The graph will report the observed contract state here.</span></div>
         </div>
-        <div class="playground-result" data-play-result aria-live="polite"><strong>Select an output and run the check.</strong><span>The graph will report the observed contract state here.</span></div>
       </div>
     </section>
 
-    <section class="section bug-section shell" aria-labelledby="bug-title">
-      <div class="section-heading">
-        <div><p class="eyebrow">The bug normal tests miss</p><h2 id="bug-title">Same shape.<br>Different contract.</h2></div>
-        <p>Pydantic can validate a boolean. It cannot prove the boolean still means what the next node assumes.</p>
-      </div>
-      <div class="meaning-diff">
-        <div class="payload baseline-payload">
-          <div class="payload-header"><span>BASELINE OUTPUT</span><span class="badge pass">✓ VALID</span></div>
-          <pre><code>{
-  "verified": true,
-  "confidence": 0.92,
-  "sources": ["source-1"]
+    <section class="section bug-section" data-rail-node="The bug" aria-labelledby="bug-title">
+      <div class="shell">
+        <div class="section-heading">
+          <div><p class="eyebrow"><i aria-hidden="true"></i>The bug normal tests miss</p><h2 id="bug-title">Same shape.<br>Different contract.</h2></div>
+          <p>Pydantic can validate a boolean. It cannot prove the boolean still means what the next node assumes.</p>
+        </div>
+        <div class="meaning-diff">
+          <div class="payload baseline-payload">
+            <div class="payload-header"><span>Baseline output</span><span class="badge pass">✓ Valid</span></div>
+            <pre><code>{
+  <span class="k">"verified"</span>: <span class="b">true</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.92</span>,
+  <span class="k">"sources"</span>: [<span class="s">"source-1"</span>]
 }</code></pre>
-          <p><span class="flow-dot"></span> Source opened and shown to support the claim.</p>
-        </div>
-        <div class="contract-cut" aria-hidden="true"><span></span><i></i><i></i></div>
-        <div class="payload candidate-payload">
-          <div class="payload-header"><span>CANDIDATE OUTPUT</span><span class="badge pass">✓ VALID</span></div>
-          <pre><code>{
-  "verified": true,
-  "confidence": 0.92,
-  "sources": ["source-1"]
+            <p><span class="flow-dot" aria-hidden="true"></span> Source opened and shown to support the claim.</p>
+          </div>
+          <div class="contract-cut" aria-hidden="true"><span class="cut-rail"></span><i></i><i></i></div>
+          <div class="payload candidate-payload">
+            <div class="payload-header"><span>Candidate output</span><span class="badge pass">✓ Valid</span></div>
+            <pre><code>{
+  <span class="k">"verified"</span>: <span class="b">true</span>,
+  <span class="k">"confidence"</span>: <span class="n">0.92</span>,
+  <span class="k">"sources"</span>: [<span class="s">"source-1"</span>]
 }</code></pre>
-          <p><span class="break-dot"></span> Source access failed; the claim merely sounded plausible.</p>
+            <p><span class="break-dot" aria-hidden="true"></span> Source access failed; the claim merely sounded plausible.</p>
+          </div>
         </div>
-      </div>
-      <p class="diff-caption"><strong>The JSON is identical.</strong> The meaning at <code>researcher → verifier</code> is not.</p>
-    </section>
-
-    <section class="section replay-section shell" aria-labelledby="replay-title">
-      <div class="section-heading">
-        <div><p class="eyebrow">The graph is the explanation</p><h2 id="replay-title">The pulse stops.<br>The evidence begins.</h2></div>
-        <p>Failure does not propagate as a successful execution. The graph freezes at the incompatible edge, then marks the downstream blast radius.</p>
-      </div>
-      <div class="edge-anatomy">
-        <div class="anatomy-flow"><span class="anatomy-node">producer</span><span class="long-rail"><b></b><i class="cut-one"></i><i class="cut-two"></i></span><span class="anatomy-node consumer">consumer</span></div>
-        <div class="anatomy-labels"><span>semantic value in flight</span><span>explicit consumer contract</span><span>recorded witness</span></div>
+        <p class="diff-caption"><strong>The JSON is identical.</strong> The meaning at <code>researcher → verifier</code> is not.</p>
       </div>
     </section>
 
-    <section class="section method shell" aria-labelledby="method-title">
-      <div class="section-heading"><div><p class="eyebrow">How GraphABI works</p><h2 id="method-title">One causal sequence.</h2></div><p>Every interface follows the same reasoning path. Nothing animates without explaining a step.</p></div>
-      <ol class="method-rail">
-        <li><span>01</span><strong>Flow</strong><p>Record what crosses each graph edge.</p></li>
-        <li><span>02</span><strong>Check</strong><p>Evaluate what the consumer relies on.</p></li>
-        <li><span>03</span><strong>Break</strong><p>Stop at the first incompatible meaning.</p></li>
-        <li><span>04</span><strong>Trace</strong><p>Calculate downstream terminal paths.</p></li>
-        <li><span>05</span><strong>Explain</strong><p>Show the exact run and conflicting value.</p></li>
-        <li><span>06</span><strong>Fix</strong><p>Name the nearest repair location.</p></li>
-      </ol>
+    <section class="section method" data-rail-node="Method" aria-labelledby="method-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>How GraphABI works</p><h2 id="method-title">One causal sequence.</h2></div><p>Every interface follows the same reasoning path. Nothing animates without explaining a step.</p></div>
+        <ol class="method-rail">
+          <li data-step="1"><span>01</span><strong>Flow</strong><p>Record what crosses each graph edge.</p></li>
+          <li data-step="2"><span>02</span><strong>Check</strong><p>Evaluate what the consumer relies on.</p></li>
+          <li data-step="3" class="step-break"><span>03</span><strong>Break</strong><p>Stop at the first incompatible meaning.</p></li>
+          <li data-step="4"><span>04</span><strong>Trace</strong><p>Calculate downstream terminal paths.</p></li>
+          <li data-step="5"><span>05</span><strong>Explain</strong><p>Show the exact run and conflicting value.</p></li>
+          <li data-step="6"><span>06</span><strong>Fix</strong><p>Name the nearest repair location.</p></li>
+        </ol>
+      </div>
     </section>
 
-    <section id="contracts" class="section contract-section shell" aria-labelledby="contract-title">
-      <div class="section-heading"><div><p class="eyebrow">Consumer-driven edge contracts</p><h2 id="contract-title">Write the assumption down.</h2></div><p>The verifier defines what it needs from the researcher. Evaluators stay deterministic and independently extensible.</p></div>
-      <div class="code-layout">
-        <pre class="yaml"><code><span class="key">version:</span> <span class="string">"0.1"</span>
+    <section id="contracts" class="section contract-section" data-rail-node="Contracts" aria-labelledby="contract-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Consumer-driven edge contracts</p><h2 id="contract-title">Write the assumption down.</h2></div><p>The verifier defines what it needs from the researcher. Evaluators stay deterministic and independently extensible.</p></div>
+        <div class="code-layout">
+          <div class="code-pane">
+            <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>graphabi.contracts.yaml</strong></div>
+            <pre class="yaml"><code><span class="key">version:</span> <span class="string">"0.1"</span>
 <span class="key">graph:</span> research_demo
 <span class="key">edges:</span>
   - <span class="key">id:</span> researcher_to_verifier
@@ -167,22 +206,36 @@
     <span class="key">invariants:</span>
       - <span class="key">id:</span> verified_requires_opened_source
         <span class="key">evaluator:</span> implication
-        <span class="key">severity:</span> breaking
+        <span class="key">severity:</span> <span class="sev">breaking</span>
         <span class="key">when:</span>
           <span class="key">path:</span> output.verified
-          <span class="key">equals:</span> true
+          <span class="key">equals:</span> <span class="bool">true</span>
         <span class="key">require:</span>
           <span class="key">path:</span> metadata.opened_sources_count
-          <span class="key">greater_than:</span> 0</code></pre>
-        <div class="evaluator-list"><p class="list-label">SHIPPED EVALUATORS</p><ul><li><span>01</span> Implication</li><li><span>02</span> Provenance</li><li><span>03</span> Preservation</li><li><span>04</span> Unit consistency</li><li><span>05</span> Authority</li><li><span>06</span> Freshness</li></ul><a href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md">Add an evaluator without changing core →</a></div>
+          <span class="key">greater_than:</span> <span class="num">0</span></code></pre>
+          </div>
+          <div class="evaluator-list">
+            <p class="list-label">Shipped evaluators</p>
+            <ul>
+              <li><span>01</span> Implication</li>
+              <li><span>02</span> Provenance</li>
+              <li><span>03</span> Preservation</li>
+              <li><span>04</span> Unit consistency</li>
+              <li><span>05</span> Authority</li>
+              <li><span>06</span> Freshness</li>
+            </ul>
+            <a class="edge-link" href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md">Add an evaluator without changing core <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="section terminal-section shell" aria-labelledby="terminal-title">
-      <div class="section-heading"><div><p class="eyebrow">Run the proof locally</p><h2 id="terminal-title">The failure is real output.</h2></div><p>The demo executes baseline and candidate LangGraphs, records both in SQLite, and generates offline JSON and HTML.</p></div>
-      <div class="terminal">
-        <div class="terminal-bar"><span></span><span></span><span></span><strong>graphabi demo --allow-breaking</strong></div>
-        <pre tabindex="0" aria-label="Terminal output; scroll horizontally if needed"><code><span class="muted">GraphABI semantic compatibility report</span>
+    <section class="section terminal-section" data-rail-node="Terminal" aria-labelledby="terminal-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Run the proof locally</p><h2 id="terminal-title">The failure is real output.</h2></div><p>The demo executes baseline and candidate LangGraphs, records both in SQLite, and generates offline JSON and HTML.</p></div>
+        <div class="terminal">
+          <div class="terminal-bar"><span class="tl"></span><span class="tl"></span><span class="tl"></span><strong>graphabi demo --allow-breaking</strong></div>
+          <pre tabindex="0" aria-label="Terminal output; scroll horizontally if needed"><code><span class="muted">GraphABI semantic compatibility report</span>
 Structural compatibility: <span class="pass">PASS</span>
 Semantic compatibility: <span class="fail">FAIL</span>
 First breaking edge: <span class="fail">researcher → verifier</span>
@@ -193,62 +246,177 @@ Affected downstream nodes: verifier, decision_maker, publisher
 <span class="muted">Reports:</span>
 .graphabi/reports/latest/report.json
 .graphabi/reports/latest/index.html</code></pre>
+        </div>
       </div>
     </section>
 
-    <section id="architecture" class="section architecture-section shell" aria-labelledby="architecture-title">
-      <div class="section-heading"><div><p class="eyebrow">Framework-independent core</p><h2 id="architecture-title">Adapters observe.<br>Core decides.</h2></div><p>LangGraph integration ends at a versioned trace boundary. Contracts, comparison, impact, and reporting do not import framework types.</p></div>
-      <img class="architecture-visual" src="assets/architecture.svg" width="1200" height="430" loading="lazy" alt="Adapters emit versioned traces, contracts check edge observations, impact analysis traces affected paths, and reports explain witnesses.">
-    </section>
-
-    <section class="section report-section shell" aria-labelledby="report-title">
-      <div class="section-heading"><div><p class="eyebrow">A report that explains causality</p><h2 id="report-title">Not a score.<br>A repairable witness.</h2></div><p>Machine-readable JSON and a self-contained HTML report come from one redacted report model. The report works offline.</p></div>
-      <figure class="report-figure"><img src="assets/report-preview.svg" width="1200" height="720" loading="lazy" alt="GraphABI report with structural pass, semantic break, first broken edge, witness, downstream path, and repair location."><figcaption>Exact demo state: candidate-003 · researcher → verifier · publisher affected</figcaption></figure>
-    </section>
-
-    <section class="section roadmap-section shell" aria-labelledby="roadmap-title">
-      <div class="section-heading"><div><p class="eyebrow">Public alpha roadmap</p><h2 id="roadmap-title">The next edges are explicit.</h2></div><p>Planned means planned, not hidden behind a maturity claim.</p></div>
-      <div class="roadmap-rail">
-        <a href="https://github.com/graphabi/graphabi/issues/1"><span>01</span><strong>Causal pairing for loops</strong><small>Planned</small></a>
-        <a href="https://github.com/graphabi/graphabi/issues/2"><span>02</span><strong>Contract coverage</strong><small>Planned</small></a>
-        <a href="https://github.com/graphabi/graphabi/issues/3"><span>03</span><strong>OpenTelemetry ingestion</strong><small>Planned</small></a>
-        <a href="https://github.com/graphabi/graphabi/issues/4"><span>04</span><strong>Second framework adapter</strong><small>Planned</small></a>
-        <a href="https://github.com/graphabi/graphabi/issues/5"><span>05</span><strong>Model-migration example</strong><small>Planned</small></a>
+    <section id="architecture" class="section architecture-section" data-rail-node="Architecture" aria-labelledby="architecture-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Framework-independent core</p><h2 id="architecture-title">Adapters observe.<br>Core decides.</h2></div><p>LangGraph integration ends at a versioned trace boundary. Contracts, comparison, impact, and reporting do not import framework types.</p></div>
+        <div class="arch-frame">
+          <p class="pane-label">Framework-independent semantic compatibility pipeline</p>
+          <ol class="pipeline">
+            <li class="stage stage-outside">
+              <span class="stage-tag">Flow</span>
+              <strong>Adapters</strong>
+              <small>LangGraph today</small>
+            </li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>TraceBundle 0.1</em></li>
+            <li class="stage">
+              <span class="stage-tag">Record</span>
+              <strong>Trace model</strong>
+              <small>SQLite · JSONL</small>
+            </li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span></li>
+            <li class="stage stage-check">
+              <span class="stage-tag">Check</span>
+              <strong>Contracts</strong>
+              <small>Evaluator registry</small>
+            </li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span></li>
+            <li class="stage stage-trace">
+              <span class="stage-tag">Trace</span>
+              <strong>Impact</strong>
+              <small>NetworkX paths</small>
+            </li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>CompatibilityReport 0.1</em></li>
+            <li class="stage stage-explain">
+              <span class="stage-tag">Explain</span>
+              <strong>Reports</strong>
+              <small>JSON · HTML</small>
+            </li>
+            <li class="bracket bracket-outside" aria-hidden="true"><span>Framework-facing</span></li>
+            <li class="bracket bracket-core" aria-hidden="true"><span>Framework-independent core</span></li>
+          </ol>
+          <p class="arch-note">Framework types stop at the adapter boundary. Report presentation never decides compatibility.</p>
+        </div>
       </div>
     </section>
 
-    <section class="section final-cta shell" aria-labelledby="cta-title">
-      <div class="cta-mark" aria-hidden="true"><span></span><i></i><i></i></div>
-      <p class="eyebrow">Semantic Compatibility Infrastructure</p>
-      <h2 id="cta-title">Find where meaning broke.</h2>
-      <p>Run GraphABI locally, inspect the witness, and help define the edge-level contracts agent graphs need.</p>
-      <div class="hero-actions"><button class="button primary" type="button" data-open-setup>Try GraphABI</button><a class="button secondary" href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Contribute</a></div>
+    <section class="section report-section" data-rail-node="Report" aria-labelledby="report-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>A report that explains causality</p><h2 id="report-title">Not a score.<br>A repairable witness.</h2></div><p>Machine-readable JSON and a self-contained HTML report come from one redacted report model. The report works offline.</p></div>
+        <div class="report-split">
+          <div class="report-pane">
+            <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>report.json</strong><span class="pane-note">machine-readable</span></div>
+            <pre class="yaml"><code>{
+  <span class="key">"structural"</span>: <span class="string">"pass"</span>,
+  <span class="key">"semantic"</span>: <span class="sev">"breaking"</span>,
+  <span class="key">"first_breaking_edge"</span>: {
+    <span class="key">"producer"</span>: <span class="string">"researcher"</span>,
+    <span class="key">"consumer"</span>: <span class="string">"verifier"</span>,
+    <span class="key">"contract"</span>: <span class="string">"verified_requires_opened_source"</span>
+  },
+  <span class="key">"witness"</span>: {
+    <span class="key">"run"</span>: <span class="string">"candidate-003"</span>,
+    <span class="key">"expected"</span>: <span class="string">"opened_sources_count &gt; 0"</span>,
+    <span class="key">"observed"</span>: <span class="num">0</span>
+  },
+  <span class="key">"affected"</span>: [<span class="string">"verifier"</span>, <span class="string">"decision_maker"</span>, <span class="string">"publisher"</span>],
+  <span class="key">"repair_before"</span>: <span class="string">"verifier"</span>
+}</code></pre>
+          </div>
+          <div class="report-pane">
+            <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>index.html</strong><span class="pane-note">offline, self-contained</span></div>
+            <div class="report-mock">
+              <div class="mock-verdict">
+                <div><span>Structural</span><strong class="pass">✓ PASS</strong></div>
+                <div><span>Semantic</span><strong class="fail">× BREAKING</strong></div>
+              </div>
+              <div class="mock-row">
+                <span class="mock-label">First breaking edge</span>
+                <p class="mock-edge"><b>researcher</b><i aria-hidden="true"></i><b>verifier</b></p>
+              </div>
+              <div class="mock-row">
+                <span class="mock-label">Witness · candidate-003</span>
+                <p><code class="ok">opened_sources_count &gt; 0</code> expected, <code class="bad">0</code> observed.</p>
+              </div>
+              <div class="mock-row">
+                <span class="mock-label">Downstream</span>
+                <p class="mock-chips"><em>verifier</em><em>decision_maker</em><em>publisher</em></p>
+              </div>
+              <div class="mock-row mock-repair">
+                <span class="mock-label">Repair location</span>
+                <p>Before <b>verifier</b></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="diff-caption"><strong>One redacted report model.</strong> Both renderings are generated from it, and neither can disagree with the other.</p>
+      </div>
+    </section>
+
+    <section class="section roadmap-section" data-rail-node="Roadmap" aria-labelledby="roadmap-title">
+      <div class="shell">
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Public alpha roadmap</p><h2 id="roadmap-title">The next edges are explicit.</h2></div><p>Planned means planned, not hidden behind a maturity claim.</p></div>
+        <div class="roadmap-rail">
+          <a href="https://github.com/graphabi/graphabi/issues/1"><span>01</span><strong>Causal pairing for loops</strong><small>Planned</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/2"><span>02</span><strong>Contract coverage</strong><small>Planned</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/3"><span>03</span><strong>OpenTelemetry ingestion</strong><small>Planned</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/4"><span>04</span><strong>Second framework adapter</strong><small>Planned</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/5"><span>05</span><strong>Model-migration example</strong><small>Planned</small></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section final-cta-section" data-rail-node="Start" aria-labelledby="cta-title">
+      <div class="shell">
+        <div class="final-cta">
+          <div class="cta-mark" aria-hidden="true"><span class="cta-rail"></span><i></i><i></i></div>
+          <p class="eyebrow"><i aria-hidden="true"></i>Semantic Compatibility Infrastructure</p>
+          <h2 id="cta-title">Find where meaning broke.</h2>
+          <p class="cta-lede">Run GraphABI locally, inspect the witness, and help define the edge-level contracts agent graphs need.</p>
+          <div class="hero-actions"><button class="button primary" type="button" data-open-setup>Try GraphABI</button><a class="button secondary" href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Contribute</a></div>
+        </div>
+      </div>
     </section>
   </main>
 
   <div class="setup-modal" data-setup-modal hidden>
-    <div class="modal-backdrop" data-close-setup tabindex="-1"></div>
+    <div class="modal-backdrop" data-close-setup></div>
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title" aria-describedby="setup-description" tabindex="-1">
-      <div class="setup-dialog-header"><div><p class="eyebrow">Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose the path that matches your workflow. Every command below is available now or clearly marked as planned.</p></div><button class="modal-close" type="button" data-close-setup aria-label="Close setup">×</button></div>
+      <div class="setup-dialog-header">
+        <div><p class="eyebrow"><i aria-hidden="true"></i>Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose the path that matches your workflow. Every command below is available now or clearly marked as planned.</p></div>
+        <button class="modal-close" type="button" data-close-setup aria-label="Close setup"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path d="M4 4L12 12M12 4L4 12"/></svg></button>
+      </div>
       <div class="setup-tabs" role="tablist" aria-label="Setup options">
         <button class="setup-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="setup-panel-uv" id="setup-tab-uv" data-setup-option="uv">uv</button>
-        <button class="setup-tab" type="button" role="tab" aria-selected="false" aria-controls="setup-panel-pipx" id="setup-tab-pipx" data-setup-option="pipx">pipx</button>
-        <button class="setup-tab" type="button" role="tab" aria-selected="false" aria-controls="setup-panel-action" id="setup-tab-action" data-setup-option="action">GitHub Action</button>
-        <button class="setup-tab" type="button" role="tab" aria-selected="false" aria-controls="setup-panel-langgraph" id="setup-tab-langgraph" data-setup-option="langgraph">LangGraph</button>
-        <button class="setup-tab" type="button" role="tab" aria-selected="false" aria-controls="setup-panel-otel" id="setup-tab-otel" data-setup-option="otel">OpenTelemetry</button>
+        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-pipx" id="setup-tab-pipx" data-setup-option="pipx">pipx</button>
+        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-action" id="setup-tab-action" data-setup-option="action">GitHub Action</button>
+        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-langgraph" id="setup-tab-langgraph" data-setup-option="langgraph">LangGraph</button>
+        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-otel" id="setup-tab-otel" data-setup-option="otel">OpenTelemetry</button>
+        <span class="tab-rail" aria-hidden="true"></span>
       </div>
       <div class="setup-panels">
-        <div class="setup-panel is-active" role="tabpanel" tabindex="0" id="setup-panel-uv" aria-labelledby="setup-tab-uv" data-setup-panel="uv"><div class="setup-panel-meta"><strong>Run from Git with uv</strong><span class="support-badge available">Available now</span></div><p>Run the deterministic demo without a local install or API key.</p><div class="command-line"><code data-setup-command>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy uv command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-pipx" aria-labelledby="setup-tab-pipx" data-setup-panel="pipx" hidden><div class="setup-panel-meta"><strong>Run from Git with pipx</strong><span class="support-badge available">Available now</span></div><p>Use pipx to run the CLI directly from the public repository. GraphABI is not published to PyPI.</p><div class="command-line"><code data-setup-command>pipx run --spec git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy pipx command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-action" aria-labelledby="setup-tab-action" data-setup-panel="action" hidden><div class="setup-panel-meta"><strong>Invoke from GitHub Actions</strong><span class="support-badge cli">CLI invocation</span></div><p>No official composite action is shipped yet. Invoke the same local CLI in a workflow step.</p><div class="command-line"><code data-setup-command>- run: uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy GitHub Actions command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-langgraph" aria-labelledby="setup-tab-langgraph" data-setup-panel="langgraph" hidden><div class="setup-panel-meta"><strong>Instrument LangGraph</strong><span class="support-badge available">Adapter available</span></div><p>Install GraphABI from Git, then run the included LangGraph research graph or add the adapter to your trace boundary.</p><div class="command-line"><code data-setup-command>uv add "graphabi @ git+https://github.com/graphabi/graphabi"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy LangGraph command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-otel" aria-labelledby="setup-tab-otel" data-setup-panel="otel" hidden><div class="setup-panel-meta"><strong>OpenTelemetry ingestion</strong><span class="support-badge planned">Planned</span></div><p>OpenTelemetry ingestion is on the public roadmap and is not available in v0.1.0-alpha.1.</p><div class="command-line"><code data-setup-command>echo "OpenTelemetry ingestion is planned, not shipped"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy OpenTelemetry status">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel is-active" role="tabpanel" tabindex="0" id="setup-panel-uv" aria-labelledby="setup-tab-uv" data-setup-panel="uv"><div class="setup-panel-meta"><strong>Run from Git with uv</strong><span class="support-badge available">Available now</span></div><p>Run the deterministic demo without a local install or API key.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy uv command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-pipx" aria-labelledby="setup-tab-pipx" data-setup-panel="pipx" hidden><div class="setup-panel-meta"><strong>Run from Git with pipx</strong><span class="support-badge available">Available now</span></div><p>Use pipx to run the CLI directly from the public repository. GraphABI is not published to PyPI.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>pipx run --spec git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy pipx command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-action" aria-labelledby="setup-tab-action" data-setup-panel="action" hidden><div class="setup-panel-meta"><strong>Invoke from GitHub Actions</strong><span class="support-badge cli">CLI invocation</span></div><p>No official composite action is shipped yet. Invoke the same local CLI in a workflow step.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>- run: uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy GitHub Actions command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-langgraph" aria-labelledby="setup-tab-langgraph" data-setup-panel="langgraph" hidden><div class="setup-panel-meta"><strong>Instrument LangGraph</strong><span class="support-badge available">Adapter available</span></div><p>Install GraphABI from Git, then run the included LangGraph research graph or add the adapter to your trace boundary.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uv add "graphabi @ git+https://github.com/graphabi/graphabi"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy LangGraph command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-otel" aria-labelledby="setup-tab-otel" data-setup-panel="otel" hidden><div class="setup-panel-meta"><strong>OpenTelemetry ingestion</strong><span class="support-badge planned">Planned</span></div><p>OpenTelemetry ingestion is on the public roadmap and is not available in v0.1.0-alpha.1.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>echo "OpenTelemetry ingestion is planned, not shipped"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy OpenTelemetry status">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
       </div>
     </section>
   </div>
 
   <footer class="site-footer">
-    <div class="shell footer-inner"><div><img src="assets/logo-mark.svg" width="48" height="48" alt=""><span>GraphABI · Apache-2.0 · Public alpha</span></div><nav aria-label="Footer navigation"><a href="https://github.com/graphabi/graphabi/tree/main/docs">Documentation</a><a href="https://github.com/graphabi/graphabi/blob/main/SECURITY.md">Security</a><a href="https://github.com/graphabi/graphabi/discussions">Discussions</a></nav></div>
+    <div class="shell footer-inner">
+      <div class="footer-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="26" height="26" focusable="false">
+            <circle cx="9" cy="32" r="5" class="m-live"/>
+            <path d="M14 32H28" class="m-live-stroke"/>
+            <path d="M36 32H50" class="m-dead-stroke"/>
+            <circle cx="55" cy="32" r="5" class="m-dead"/>
+            <path d="M29 26L35 31M29 33L35 38" class="m-cut"/>
+          </svg>
+        </span>
+        <span>GraphABI · Apache-2.0 · Public alpha</span>
+      </div>
+      <nav aria-label="Footer navigation">
+        <a href="https://github.com/graphabi/graphabi/tree/main/docs">Documentation</a>
+        <a href="https://github.com/graphabi/graphabi/blob/main/SECURITY.md">Security</a>
+        <a href="https://github.com/graphabi/graphabi/discussions">Discussions</a>
+      </nav>
+    </div>
   </footer>
 </body>
 </html>
