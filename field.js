@@ -55,6 +55,7 @@
   let pulses = [];
   let obstacles = [];
   let scrollY = window.scrollY || 0;
+  let pointerX = -9999, pointerY = -9999, pointerOn = 0;
   let raf = 0;
   let running = false;
   let last = 0;
@@ -105,8 +106,13 @@
         // Independent slow wander keeps the field breathing once forces settle.
         px: rand(0, Math.PI * 2), py: rand(0, Math.PI * 2),
         ps: rand(0.12, 0.3),
-        r: rand(1.3, 2.5),
+        // Depth. Near nodes are larger, brighter and drift further; far ones
+        // sit back. It reads as a volume rather than a flat wireframe.
+        z: Math.random(),
+        r: 0,
       });
+      const n = nodes[nodes.length - 1];
+      n.r = 1.1 + n.z * 1.7;
     }
 
     // k-nearest wiring, degree-capped so no node becomes a hub.
@@ -201,9 +207,22 @@
         else p.vy += push * (1 - down / o.h);
       }
 
+      // The graph parts around the pointer. Near nodes move more, which is
+      // what sells the depth.
+      if (pointerOn) {
+        const dx = p.x - pointerX, dy = p.y - pointerY;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 30000 && d2 > 1) {
+          const d = Math.sqrt(d2);
+          const f = (1 - d / 173) * (0.5 + p.z) * 1.9 / d;
+          p.vx += dx * f; p.vy += dy * f;
+        }
+      }
+
       // Slow independent wander, so a settled graph still breathes.
-      p.vx += Math.cos(t * p.ps + p.px) * 0.014;
-      p.vy += Math.sin(t * p.ps + p.py) * 0.014;
+      const w = 0.008 + p.z * 0.013;
+      p.vx += Math.cos(t * p.ps + p.px) * w;
+      p.vy += Math.sin(t * p.ps + p.py) * w;
 
       p.vx *= 0.90; p.vy *= 0.90;
 
@@ -361,15 +380,16 @@
         ctx.stroke();
         ctx.setLineDash([]);
       }
-      ctx.strokeStyle = rgba(C.mesh, edgeA * e.life * (1 - e.blast * 0.5));
-      ctx.lineWidth = 1;
+      const az = (a.z + b.z) / 2;
+      ctx.strokeStyle = rgba(C.mesh, edgeA * e.life * (1 - e.blast * 0.5) * (0.45 + az * 0.75));
+      ctx.lineWidth = 0.6 + az * 0.8;
       ctx.stroke();
     }
 
     for (const p of nodes) {
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = rgba(C.mesh, nodeA);
+      ctx.fillStyle = rgba(C.mesh, nodeA * (0.4 + p.z * 0.8));
       ctx.fill();
     }
 
@@ -508,6 +528,16 @@
   }, { passive: true });
 
   window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
+
+  // Coarse pointers get no cursor force: there is nothing hovering to react to,
+  // and a touch would yank the graph around under the user's own finger.
+  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    window.addEventListener("pointermove", (event) => {
+      pointerX = event.clientX; pointerY = event.clientY; pointerOn = 1;
+    }, { passive: true });
+    window.addEventListener("pointerleave", () => { pointerOn = 0; }, { passive: true });
+    document.addEventListener("mouseleave", () => { pointerOn = 0; }, { passive: true });
+  }
   window.addEventListener("load", measure);
   // Text reflowing after a late font swap moves every obstacle the field
   // routes around, so the cached document-space rects have to be retaken.
