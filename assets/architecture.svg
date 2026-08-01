@@ -3,10 +3,9 @@
   <desc id="desc">Framework adapters emit versioned traces, contracts check edge observations, impact analysis traces affected nodes, and reports explain a witness and repair location.</desc>
   <style>
     .pulse{offset-path:path('M208 205H286M454 205H532M700 205H778M946 205H1024');animation:travel 4s cubic-bezier(.22,1,.36,1) 1 forwards}
-    .stage{opacity:.68;animation:activate .32s cubic-bezier(.22,1,.36,1) forwards}.s2{animation-delay:.55s}.s3{animation-delay:1.1s}.s4{animation-delay:1.65s}.s5{animation-delay:2.2s}
+    .stage{opacity:1}
     @keyframes travel{0%{offset-distance:0;opacity:0}5%{opacity:1}95%{opacity:1}100%{offset-distance:100%;opacity:0}}
-    @keyframes activate{to{opacity:1}}
-    @media(prefers-reduced-motion:reduce){.pulse{animation:none;display:none}.stage{animation:none;opacity:1}}
+    @media(prefers-reduced-motion:reduce){.pulse{animation:none;display:none}}
   </style>
   <rect width="1200" height="430" rx="18" fill="#0B0F14"/>
   <rect x="1" y="1" width="1198" height="428" rx="17" fill="none" stroke="#273241" stroke-width="2"/>
