@@ -482,6 +482,8 @@ h1 { margin-bottom: var(--s4) }
 
 .section > .shell { padding-top: var(--s12) }
 
+/* The rail and its node are structure, so they render regardless. Only the
+   arrival animation is withheld, and only when something can play it. */
 .section > .shell::before {
   content: "";
   position: absolute;
@@ -490,18 +492,21 @@ h1 { margin-bottom: var(--s4) }
   width: 1px;
   height: calc(var(--s12) - var(--s6) - 3px);
   background: linear-gradient(180deg, transparent, var(--border-strong) 22%, var(--pulse));
-  transform: scaleY(0);
   transform-origin: top;
+}
+
+.js .section > .shell::before {
+  transform: scaleY(0);
   transition: transform 900ms var(--ease);
 }
-.section.is-reached > .shell::before { transform: scaleY(1) }
+.js .section.is-reached > .shell::before { transform: scaleY(1) }
 
-.section .eyebrow i {
+.js .section .eyebrow i {
   transform: scale(.35);
   opacity: 0;
   transition: transform var(--t-slow) var(--ease) 260ms, opacity var(--t-mid) var(--ease) 260ms;
 }
-.section.is-reached .eyebrow i { transform: none; opacity: 1 }
+.js .section.is-reached .eyebrow i { transform: none; opacity: 1 }
 
 .section-heading {
   display: flex;
@@ -1857,8 +1862,8 @@ body.modal-open { overflow: hidden }
     transition-duration: .01ms !important;
   }
   /* Every state the motion would have revealed is present without it. */
-  .section > .shell::before { transform: scaleY(1) }
-  .section .eyebrow i { transform: none; opacity: 1 }
+  .js .section > .shell::before { transform: scaleY(1) }
+  .js .section .eyebrow i { transform: none; opacity: 1 }
   .pulse-scene.is-playing .graph-node,
   .pulse-scene.is-playing .scene-status,
   .pulse-scene.is-playing .scene-witness,
