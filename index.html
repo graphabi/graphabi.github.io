@@ -135,14 +135,30 @@
             <button class="button secondary playground-run" type="button" data-play-run>Run semantic check</button>
           </div>
           <div class="playground-graph" role="img" aria-label="A producer sends a semantic pulse through an edge to a consumer. The pulse passes for baseline and stops at the edge for the candidate.">
-            <div class="playground-node" data-play-node="producer"><span class="node-dot" aria-hidden="true"></span><strong>researcher</strong><small>producer output</small></div>
+            <div class="playground-node" data-play-node="producer">
+              <span class="node-dot" aria-hidden="true"></span>
+              <strong>researcher</strong>
+              <small>recorded producer output</small>
+              <dl class="node-values">
+                <div><dt>output.verified</dt><dd data-play-verified>true</dd></div>
+                <div><dt>metadata.opened_sources_count</dt><dd data-play-sources>1</dd></div>
+              </dl>
+            </div>
             <div class="playground-edge" data-play-edge>
               <span class="rail" aria-hidden="true"></span><span class="rail-live" aria-hidden="true"></span>
               <span class="playground-pulse" aria-hidden="true"></span>
               <span class="playground-break" aria-hidden="true"><i></i><i></i></span>
-              <small>consumer contract</small>
+              <small>verified_requires_opened_source</small>
             </div>
-            <div class="playground-node" data-play-node="consumer"><span class="node-dot" aria-hidden="true"></span><strong>verifier</strong><small>expects opened support</small></div>
+            <div class="playground-node" data-play-node="consumer">
+              <span class="node-dot" aria-hidden="true"></span>
+              <strong>verifier</strong>
+              <small>declares the contract</small>
+              <dl class="node-values">
+                <div><dt>when</dt><dd>output.verified = true</dd></div>
+                <div><dt>require</dt><dd>opened_sources_count &gt; 0</dd></div>
+              </dl>
+            </div>
           </div>
           <div class="playground-result" data-play-result aria-live="polite"><strong>Select an output and run the check.</strong><span>The graph will report the observed contract state here.</span></div>
         </div>
