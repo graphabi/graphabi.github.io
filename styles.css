@@ -1169,15 +1169,27 @@ h1 { margin-bottom: var(--s4) }
 .method-rail strong { display: block; margin-top: var(--s5); font-size: 1.0625rem; letter-spacing: -.018em }
 .method-rail p { margin-top: var(--s1); color: var(--muted); font-size: .8125rem; line-height: 1.55 }
 .method-rail .step-break span { border-color: var(--fail); color: var(--fail-text) }
-.method-rail .step-break::after {
-  content: "";
+/* The method rail is itself a graph edge, so step 03 has to actually cut it:
+   the rail opens a gap and the canonical two-stroke mark sits in the gap. */
+.method-rail .step-break::before {
+  background: linear-gradient(90deg, var(--edge) 0 52%, transparent 52% 74%, var(--edge) 74%);
+}
+.rail-cut {
   position: absolute;
-  top: 38px; left: 58%;
-  width: 14px; height: 2.5px;
+  top: 46px; left: 60%;
+  width: 16px; height: 0;
+}
+.rail-cut b {
+  position: absolute;
+  left: 0;
+  width: 15px; height: 2.5px;
   border-radius: 2px;
   background: var(--fail);
   transform: rotate(42deg);
+  transform-origin: left center;
 }
+.rail-cut b:first-child { top: -6px }
+.rail-cut b:last-child  { top: 4px }
 
 /* ======================================================= contracts === */
 
@@ -1437,9 +1449,18 @@ h1 { margin-bottom: var(--s4) }
 
 /* ============================================================= cta === */
 
-.final-cta { padding: var(--s9) var(--s7); box-shadow: var(--shadow-lift) }
-.final-cta h2 { max-width: 14ch }
+.final-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--s9) var(--s7);
+  text-align: center;
+  box-shadow: var(--shadow-lift);
+}
+.final-cta h2 { max-width: 16ch }
+.final-cta .eyebrow { justify-content: center }
 .cta-lede { max-width: 52ch; margin: var(--s3) 0 var(--s6) }
+.final-cta .hero-actions { justify-content: center }
 .cta-mark { position: relative; width: 160px; height: 3px; margin-bottom: var(--s6) }
 .cta-rail {
   display: block;
@@ -1789,7 +1810,13 @@ body.modal-open { overflow: hidden }
   }
   .method-rail li:last-child::before { display: none }
   .method-rail strong { margin-top: var(--s2) }
-  .method-rail .step-break::after { top: var(--s5); left: var(--s3) }
+  .method-rail .step-break::before {
+    background: linear-gradient(180deg, var(--edge) 0 30%, transparent 30% 58%, var(--edge) 58%);
+  }
+  .rail-cut { top: 68px; left: calc(var(--s3) + 12px) }
+  .rail-cut b { transform: rotate(-42deg); left: -7px }
+  .rail-cut b:first-child { top: 0 }
+  .rail-cut b:last-child  { top: 10px }
 
   .yaml, .evaluator-list, .terminal pre { padding: var(--s3) var(--s2) }
   .yaml, .terminal pre, .payload pre { font-size: .75rem }
