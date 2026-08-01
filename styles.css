@@ -58,7 +58,7 @@ button,a { -webkit-tap-highlight-color:transparent }
 .brand { display:flex; align-items:center; min-height:44px; text-decoration:none }
 .brand img { width:207px }
 .nav-links { display:flex; align-items:center; gap:6px }
-.nav-links a { display:flex; align-items:center; min-height:44px; padding:0 13px; color:var(--muted); text-decoration:none; font-size:13px; font-weight:600; transition:color 220ms var(--ease-out-quint),background 220ms var(--ease-out-quint) }
+.nav-links a { display:flex; align-items:center; min-height:44px; padding:0 13px; color:var(--muted); text-decoration:none; font-size:13px; font-weight:600 }
 .nav-links a:hover { color:var(--text) }
 .nav-links .nav-github { margin-left:8px; border:1px solid var(--border); border-radius:8px; color:var(--text) }
 .nav-links .nav-github:hover { border-color:var(--primary); background:#171324 }
@@ -85,7 +85,7 @@ h2 { margin-bottom:0; font-size:clamp(2.2rem,5vw,4.25rem); font-weight:640; line
 .scene-toolbar > div { display:flex; flex-direction:column; gap:3px }
 .scene-kicker { color:var(--muted); font:700 10px/1.3 var(--mono); letter-spacing:.12em }
 .scene-phase { color:var(--text); font:650 12px/1.4 var(--mono) }
-.replay { min-height:44px; padding:0 15px; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--text); font:650 13px var(--sans); cursor:pointer; transition:border-color 220ms var(--ease-out-quint),background 220ms var(--ease-out-quint) }
+.replay { min-height:44px; padding:0 15px; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--text); font:650 13px var(--sans); cursor:pointer }
 .replay:hover { border-color:var(--primary); background:#171324 }
 .replay:disabled { cursor:wait; opacity:.62 }
 .scene-status { display:flex; gap:12px; padding:20px 24px 0 }
@@ -186,7 +186,7 @@ h2 { margin-bottom:0; font-size:clamp(2.2rem,5vw,4.25rem); font-weight:640; line
 .architecture-visual,.report-figure { width:100%; border:1px solid var(--border); border-radius:14px; background:var(--surface) }
 .report-figure { margin:0; overflow:hidden }.report-figure img { width:100% }.report-figure figcaption { padding:13px 18px; border-top:1px solid var(--border); color:var(--muted); font:11px var(--mono) }
 
-.roadmap-rail { border-top:1px solid var(--border) }.roadmap-rail a { display:grid; grid-template-columns:60px 1fr auto; align-items:center; gap:20px; min-height:82px; border-bottom:1px solid var(--border); text-decoration:none; transition:padding 220ms var(--ease-out-quint),background 220ms var(--ease-out-quint) }.roadmap-rail a:hover { padding-inline:12px; background:var(--surface) }.roadmap-rail span,.roadmap-rail small { color:var(--muted); font:11px var(--mono) }.roadmap-rail strong { font-size:17px }.roadmap-rail small { color:var(--unknown); text-transform:uppercase }
+.roadmap-rail { border-top:1px solid var(--border) }.roadmap-rail a { display:grid; grid-template-columns:60px 1fr auto; align-items:center; gap:20px; min-height:82px; border-bottom:1px solid var(--border); text-decoration:none }.roadmap-rail a:hover { background:var(--surface) }.roadmap-rail span,.roadmap-rail small { color:var(--muted); font:11px var(--mono) }.roadmap-rail strong { font-size:17px }.roadmap-rail small { color:var(--unknown); text-transform:uppercase }
 
 .final-cta { margin-top:150px; padding:90px 52px; border:1px solid var(--border); border-radius:14px; background:var(--surface) }.final-cta h2 { max-width:700px }.final-cta > p:not(.eyebrow) { max-width:640px; margin:24px 0 0; color:var(--muted); font-size:18px }.cta-mark { position:relative; width:168px; height:18px; margin-bottom:46px; background:linear-gradient(90deg,var(--pulse) 0 44%,transparent 44% 56%,var(--edge) 56%); border-radius:5px }.cta-mark::before,.cta-mark::after { content:""; position:absolute; top:4px; width:10px; height:10px; border-radius:50%; background:var(--pulse) }.cta-mark::before { left:-5px }.cta-mark::after { right:-5px; background:var(--edge) }.cta-mark i { position:absolute; left:46%; width:22px; height:4px; border-radius:3px; background:var(--fail); transform:rotate(42deg); transform-origin:left center }.cta-mark i:first-of-type { top:-6px }.cta-mark i:last-of-type { top:10px }
 
