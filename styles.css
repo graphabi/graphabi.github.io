@@ -186,7 +186,7 @@ h1, h2, h3, p, ol, ul, figure, pre { margin: 0 }
 h1, h2, h3 { font-weight: 640; text-wrap: balance }
 
 h1 {
-  font-size: clamp(2.75rem, 7.6vw, 6.5rem);
+  font-size: clamp(2.125rem, 7.6vw, 6.5rem);
   line-height: .93;
   letter-spacing: -.042em;
 }
@@ -656,6 +656,7 @@ h1 { margin-bottom: var(--s4) }
 /* ---- edges -------------------------------------------------------- */
 
 .graph-edge { position: relative; height: 44px }
+
 .graph-edge .rail {
   position: absolute;
   top: 50%; left: 0;
@@ -663,21 +664,22 @@ h1 { margin-bottom: var(--s4) }
   margin-top: -1px;
   border-radius: 2px;
   background: var(--edge);
-  transition: background var(--t-mid) var(--ease), opacity var(--t-mid) var(--ease);
 }
-/* The resolved portion of the first edge: it reaches the cut and stops. */
-.first-edge .rail-live {
+
+/* One resolved-portion element per edge, scaled to however far meaning got. */
+.graph-edge .rail-live {
   position: absolute;
   top: 50%; left: 0;
-  width: calc(var(--break-stop) * 100%); height: 3px;
+  width: 100%; height: 3px;
   margin-top: -1.5px;
   border-radius: 2px;
   background: var(--pulse);
+  transform: scaleX(0);
   transform-origin: left center;
-  transition: background var(--t-mid) var(--ease);
 }
+.first-edge .rail-live { transform: scaleX(var(--break-stop)) }
 
-.pulse {
+.graph-edge .pulse {
   position: absolute;
   top: 50%; left: 0;
   width: 11px; height: 11px;
@@ -685,10 +687,13 @@ h1 { margin-bottom: var(--s4) }
   border-radius: 50%;
   background: var(--pulse);
   box-shadow: 0 0 0 4px var(--tint-pulse);
+  opacity: 0;
   transform: translateX(calc(var(--edge-w, 120px) * var(--break-stop) - 5.5px));
 }
-/* Trailing arc, so the pulse reads as travel and not as a floating dot. */
-.pulse::before {
+.first-edge .pulse { opacity: 1 }
+
+/* Trailing arc, so the pulse reads as travel and not a floating dot. */
+.graph-edge .pulse::before {
   content: "";
   position: absolute;
   top: 4px; right: 6px;
@@ -727,10 +732,8 @@ h1 { margin-bottom: var(--s4) }
   transform: translateX(-50%);
 }
 
-/* Blast radius: dashed, and clearly not successful propagation.
-   Dashes come from a background image, never a border, so the replay can
-   swap an edge between solid and dashed with a single `background` override
-   instead of stacking two visual treatments on one rail. */
+/* Blast radius: dashed, and clearly not successful propagation. Dashes come
+   from a background image so one `background` override swaps edge state. */
 .blast-edge .rail {
   height: 2px;
   border-radius: 0;
@@ -798,48 +801,97 @@ h1 { margin-bottom: var(--s4) }
 }
 .scene-witness > p b { color: var(--muted); font-weight: 600 }
 
-/* ---- replay timeline ---------------------------------------------- */
+/* ---- replay timeline ----------------------------------------------
+   Baseline: one pulse traverses every edge in turn, each resolving green
+   behind it. Candidate: the same pulse leaves and never arrives. Trace:
+   the blast propagates outward from the break, hop by hop.
+   ------------------------------------------------------------------- */
 
 .pulse-scene.is-playing .graph-node,
 .pulse-scene.is-playing .scene-status,
 .pulse-scene.is-playing .scene-witness,
-.pulse-scene.is-playing .pulse,
 .pulse-scene.is-playing .break-mark,
 .pulse-scene.is-playing .edge-caption { opacity: 0 }
+.pulse-scene.is-playing .graph-edge .pulse { opacity: 0 }
 
 .pulse-scene.is-playing .graph-node { transform: translateY(6px) }
+/* Colour has to stay in the transition list or the blast stagger below has
+   nothing to delay, and every affected node lights at once, ahead of the
+   edges that are supposed to be carrying the blast to it. */
 .pulse-scene.is-playing .graph-node,
 .pulse-scene.is-playing .scene-status {
-  transition: opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+  transition:
+    opacity var(--t-mid) var(--ease),
+    transform var(--t-mid) var(--ease),
+    border-color var(--t-mid) var(--ease),
+    background var(--t-mid) var(--ease);
+  transition-delay: calc(var(--n, 0) * 70ms);
 }
-/* Nodes resolve in topology order, not all at once. */
-.pulse-scene.is-playing .graph-node:nth-of-type(1) { transition-delay: 0ms }
-.pulse-scene.is-playing .graph-node:nth-of-type(2) { transition-delay: 70ms }
-.pulse-scene.is-playing .graph-node:nth-of-type(3) { transition-delay: 140ms }
-.pulse-scene.is-playing .graph-node:nth-of-type(4) { transition-delay: 210ms }
-
+.pulse-scene.is-playing .graph-node small { transition: color var(--t-mid) var(--ease) }
 .pulse-scene.is-playing.nodes-active .graph-node { opacity: 1; transform: none }
+
 .pulse-scene.is-playing.baseline-active .scene-status,
 .pulse-scene.is-playing.candidate-active .scene-status { opacity: 1 }
 .pulse-scene.is-playing.baseline-active .semantic-status,
 .pulse-scene.is-playing.candidate-active .semantic-status { visibility: hidden; opacity: 0 }
-.pulse-scene.is-playing.baseline-active .rail { background: var(--pass) }
-.pulse-scene.is-playing.baseline-active .first-edge .rail-live { background: var(--pass) }
 
-.pulse-scene.is-playing.candidate-active .first-edge .rail-live { background: var(--pulse) }
-.pulse-scene.is-playing.candidate-active .pulse {
-  opacity: 1;
-  animation: pulse-travel 1100ms var(--ease-io) forwards;
+/* --- baseline: the pulse actually walks the graph --- */
+.pulse-scene.is-playing.baseline-active .graph-edge .pulse {
+  background: var(--pass);
+  box-shadow: 0 0 0 4px var(--tint-pass);
+  animation: hop-travel 380ms linear forwards;
+  animation-delay: calc(var(--e, 0) * 380ms);
 }
-.pulse-scene.is-playing.candidate-active .pulse::before {
-  opacity: .75;
+.pulse-scene.is-playing.baseline-active .graph-edge .pulse::before {
+  background: linear-gradient(270deg, var(--pass), transparent);
+  opacity: .8;
+}
+.pulse-scene.is-playing.baseline-active .graph-edge .rail-live {
+  background: var(--pass);
+  animation: rail-fill 380ms linear forwards;
+  animation-delay: calc(var(--e, 0) * 380ms);
+}
+.pulse-scene.is-playing.baseline-active .blast-edge .rail { background: var(--edge) }
+
+@keyframes hop-travel {
+  from { opacity: 1; transform: translateX(-5.5px) }
+  to   { opacity: 1; transform: translateX(calc(var(--edge-w, 120px) - 5.5px)) }
+}
+@keyframes rail-fill { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+
+/* Draining the baseline before the candidate runs. Without this the graph
+   cuts from fully resolved to empty in one frame, which reads as a glitch
+   rather than as a second run starting from a clean state. */
+.pulse-scene.is-playing.baseline-active.resetting .graph-edge .rail-live {
+  animation: rail-drain 300ms var(--ease-io) forwards;
+  animation-delay: 0s;
+}
+.pulse-scene.is-playing.baseline-active.resetting .graph-edge .pulse {
+  animation: pulse-out 200ms var(--ease) forwards;
+  animation-delay: 0s;
+}
+@keyframes rail-drain { from { transform: scaleX(1); opacity: 1 } to { transform: scaleX(1); opacity: 0 } }
+@keyframes pulse-out  { to { opacity: 0 } }
+
+/* --- candidate: it leaves, and it does not arrive --- */
+.pulse-scene.is-playing.candidate-active .first-edge .rail-live {
+  background: var(--pulse);
+  animation: rail-stop 900ms var(--ease-io) forwards;
+}
+.pulse-scene.is-playing.candidate-active .first-edge .pulse {
+  animation: pulse-stop 900ms var(--ease-io) forwards;
+}
+.pulse-scene.is-playing.candidate-active .first-edge .pulse::before {
+  opacity: .8;
   transition: opacity 200ms linear;
 }
-@keyframes pulse-travel {
-  from { transform: translateX(-5.5px) }
-  to   { transform: translateX(calc(var(--edge-w, 120px) * var(--break-stop) - 5.5px)) }
+@keyframes pulse-stop {
+  from { opacity: 1; transform: translateX(-5.5px) }
+  to   { opacity: 1; transform: translateX(calc(var(--edge-w, 120px) * var(--break-stop) - 5.5px)) }
 }
-/* Before the break resolves, downstream state must not be implied. */
+@keyframes rail-stop { from { transform: scaleX(0) } to { transform: scaleX(var(--break-stop)) } }
+
+/* Nothing downstream may be asserted before the break is found. */
 .pulse-scene.is-playing:not(.broken-active) .graph-node.direct,
 .pulse-scene.is-playing:not(.impact-active) .graph-node.affected {
   border-color: var(--edge);
@@ -851,23 +903,51 @@ h1 { margin-bottom: var(--s4) }
 }
 .pulse-scene.is-playing:not(.broken-active) .graph-node.direct small,
 .pulse-scene.is-playing:not(.impact-active) .graph-node.affected small { color: var(--subtle) }
-/* No blast radius may be implied before the break is found. */
 .pulse-scene.is-playing:not(.impact-active) .blast-edge .rail { background: var(--edge) }
-.pulse-scene.is-playing.baseline-active .blast-edge .rail { background: var(--pass) }
 
+/* --- break --- */
 .pulse-scene.is-playing.broken-active .semantic-status { visibility: visible; opacity: 1 }
 .pulse-scene.is-playing.broken-active .break-mark,
 .pulse-scene.is-playing.broken-active .edge-caption {
   opacity: 1;
   transition: opacity var(--t-fast) var(--ease);
 }
-.pulse-scene.is-playing.broken-active .break-mark i { animation: cut-in 260ms var(--ease) backwards }
+.pulse-scene.is-playing.broken-active .break-mark i { animation: cut-in 240ms var(--ease) backwards }
 .pulse-scene.is-playing.broken-active .break-mark i:last-child { animation-delay: 60ms }
 @keyframes cut-in {
   from { transform: rotate(42deg) scaleX(0) }
   to   { transform: rotate(42deg) scaleX(1) }
 }
-.pulse-scene.is-playing.broken-active .pulse::before { opacity: 0 }
+.pulse-scene.is-playing.broken-active .first-edge .pulse::before { opacity: 0 }
+
+/* --- trace: the blast propagates hop by hop, it does not appear at once --- */
+.pulse-scene.is-playing.impact-active .blast-edge .rail {
+  animation: blast-in 300ms var(--ease) backwards;
+  animation-delay: calc((var(--e, 1) - 1) * 190ms);
+}
+.pulse-scene.is-playing.impact-active .graph-node.affected,
+.pulse-scene.is-playing.impact-active .graph-node.direct {
+  transition-delay: calc((var(--n, 1) - 1) * 240ms);
+}
+.pulse-scene.is-playing.impact-active .graph-node.affected small,
+.pulse-scene.is-playing.impact-active .graph-node.direct small {
+  transition-delay: calc((var(--n, 1) - 1) * 240ms);
+}
+/* The blast arriving at a node is a discrete event, so the node marks it. */
+.pulse-scene.is-playing.impact-active .graph-node.affected .node-dot,
+.pulse-scene.is-playing.impact-active .graph-node.direct .node-dot {
+  animation: blast-hit 420ms var(--ease) backwards;
+  animation-delay: calc((var(--n, 1) - 1) * 240ms);
+}
+@keyframes blast-hit {
+  0%   { box-shadow: 0 0 0 0 var(--tint-fail) }
+  40%  { box-shadow: 0 0 0 7px var(--tint-fail) }
+  100% { box-shadow: 0 0 0 4px var(--tint-fail) }
+}
+@keyframes blast-in {
+  from { background: var(--edge) }
+  to   { background: repeating-linear-gradient(90deg, var(--edge-fail) 0 6px, transparent 6px 13px) }
+}
 
 .pulse-scene.is-playing.witness-active .scene-witness {
   opacity: 1;
@@ -1725,6 +1805,11 @@ body.modal-open { overflow: hidden }
   .hero-actions { gap: var(--s1) }
   .hero-actions .button { flex: 1 1 140px }
   .install-line { margin-top: var(--s4) }
+  /* Signal that the command runs past the edge instead of just clipping it. */
+  .install-line code {
+    -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, #000 88%, transparent);
+  }
 
   .section > .shell { padding-top: var(--s9) }
   .section > .shell::before { top: var(--s5); height: calc(var(--s9) - var(--s5) - 3px) }
