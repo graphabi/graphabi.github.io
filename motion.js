@@ -70,17 +70,19 @@
     announce(scene, "Loading recorded nodes");
 
     // Flow, check, break, trace, explain. The order is the product.
+    // Hop length and blast stagger are mirrored in styles.css.
     after(scene, 160, () => { scene.classList.add("nodes-active"); announce(scene, "Flow · nodes resolved in topology order"); });
-    after(scene, 780, () => { scene.classList.add("baseline-active"); announce(scene, "Check · baseline contracts pass"); });
-    after(scene, 1900, () => {
-      scene.classList.remove("baseline-active");
+    after(scene, 700, () => { scene.classList.add("baseline-active"); announce(scene, "Check · baseline pulse crosses every edge"); });
+    after(scene, 2060, () => { scene.classList.add("resetting"); });
+    after(scene, 2400, () => {
+      scene.classList.remove("baseline-active", "resetting");
       scene.classList.add("candidate-active");
       announce(scene, "Candidate swapped · schema still valid");
     });
-    after(scene, 3050, () => { scene.classList.add("broken-active"); announce(scene, "Break · researcher → verifier"); });
-    after(scene, 3450, () => { scene.classList.add("impact-active"); announce(scene, "Trace · downstream impact identified"); });
-    after(scene, 3950, () => { scene.classList.add("witness-active"); announce(scene, "Explain · trace-backed witness recorded"); });
-    after(scene, 4550, () => finish(scene));
+    after(scene, 3340, () => { scene.classList.add("broken-active"); announce(scene, "Break · researcher → verifier"); });
+    after(scene, 3760, () => { scene.classList.add("impact-active"); announce(scene, "Trace · downstream impact identified"); });
+    after(scene, 4560, () => { scene.classList.add("witness-active"); announce(scene, "Explain · trace-backed witness recorded"); });
+    after(scene, 5200, () => finish(scene));
   };
 
   $$("[data-pulse-scene]").forEach((scene) => {
