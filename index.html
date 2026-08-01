@@ -69,7 +69,7 @@
         </div>
         <div class="install-line">
           <span class="install-prompt" aria-hidden="true">$</span>
-          <code data-copy-source>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code>
+          <code data-copy-source tabindex="0" role="region" aria-label="Demo command; scroll horizontally if needed">uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code>
           <button class="install-copy" type="button" data-copy-inline aria-label="Copy demo command">
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" class="i-copy"><rect x="5.5" y="5.5" width="8" height="8" rx="1.6"/><path d="M10.5 3.5H3.5a1 1 0 0 0-1 1v7"/></svg>
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" class="i-done"><path d="M3.5 8.5L6.5 11.5L12.5 5"/></svg>
@@ -155,7 +155,7 @@
         <div class="meaning-diff">
           <div class="payload baseline-payload">
             <div class="payload-header"><span>Baseline output</span><span class="badge pass">✓ Valid</span></div>
-            <pre><code>{
+            <pre tabindex="0" role="region" aria-label="Baseline payload JSON"><code>{
   <span class="k">"verified"</span>: <span class="b">true</span>,
   <span class="k">"confidence"</span>: <span class="n">0.92</span>,
   <span class="k">"sources"</span>: [<span class="s">"source-1"</span>]
@@ -165,7 +165,7 @@
           <div class="contract-cut" aria-hidden="true"><span class="cut-rail"></span><i></i><i></i></div>
           <div class="payload candidate-payload">
             <div class="payload-header"><span>Candidate output</span><span class="badge pass">✓ Valid</span></div>
-            <pre><code>{
+            <pre tabindex="0" role="region" aria-label="Candidate payload JSON"><code>{
   <span class="k">"verified"</span>: <span class="b">true</span>,
   <span class="k">"confidence"</span>: <span class="n">0.92</span>,
   <span class="k">"sources"</span>: [<span class="s">"source-1"</span>]
@@ -197,7 +197,7 @@
         <div class="code-layout">
           <div class="code-pane">
             <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>graphabi.contracts.yaml</strong></div>
-            <pre class="yaml"><code><span class="key">version:</span> <span class="string">"0.1"</span>
+            <pre class="yaml" tabindex="0" role="region" aria-label="Edge contract YAML; scroll if needed"><code><span class="key">version:</span> <span class="string">"0.1"</span>
 <span class="key">graph:</span> research_demo
 <span class="key">edges:</span>
   - <span class="key">id:</span> researcher_to_verifier
@@ -299,7 +299,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
         <div class="report-split">
           <div class="report-pane">
             <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>report.json</strong><span class="pane-note">machine-readable</span></div>
-            <pre class="yaml"><code>{
+            <pre class="yaml" tabindex="0" role="region" aria-label="Report JSON; scroll if needed"><code>{
   <span class="key">"structural"</span>: <span class="string">"pass"</span>,
   <span class="key">"semantic"</span>: <span class="sev">"breaking"</span>,
   <span class="key">"first_breaking_edge"</span>: {
