@@ -1,137 +1,333 @@
+/* =============================================================================
+   GraphABI — product motion
+   -----------------------------------------------------------------------------
+   Everything here is causal. Motion exists to show where meaning flowed, what
+   checked it, where it stopped, and what that reached. Nothing loops, and no
+   state is expressed by motion alone: the final frame always carries the
+   whole result in text and colour.
+   ========================================================================== */
+
 (() => {
   "use strict";
 
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const timersByScene = new WeakMap();
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => [...(root || document).querySelectorAll(sel)];
 
-  const clearScene = (scene) => {
-    (timersByScene.get(scene) || []).forEach(window.clearTimeout);
-    timersByScene.set(scene, []);
+  /* ------------------------------------------------- edge measurement ---
+     Pulses travel with transform, which needs the edge's pixel length.
+     One ResizeObserver keeps the custom property honest across breakpoints. */
+
+  const measured = $$(".graph-edge, .playground-edge");
+  if (measured.length && "ResizeObserver" in window) {
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const el = entry.target;
+        el.style.setProperty("--edge-w", el.offsetWidth + "px");
+        el.style.setProperty("--edge-h", el.offsetHeight + "px");
+      }
+    });
+    measured.forEach((el) => ro.observe(el));
+  }
+
+  /* --------------------------------------------------- canonical replay --- */
+
+  const timers = new WeakMap();
+
+  const clear = (scene) => {
+    (timers.get(scene) || []).forEach(clearTimeout);
+    timers.set(scene, []);
   };
 
-  const schedule = (scene, delay, action) => {
-    const timers = timersByScene.get(scene) || [];
-    timers.push(window.setTimeout(action, delay));
-    timersByScene.set(scene, timers);
+  const after = (scene, delay, fn) => {
+    const list = timers.get(scene) || [];
+    list.push(setTimeout(fn, delay));
+    timers.set(scene, list);
   };
 
   const announce = (scene, text) => {
-    const phase = scene.querySelector("[data-scene-phase]");
-    const live = scene.querySelector("[data-scene-live]");
+    const phase = $("[data-scene-phase]", scene);
+    const live = $("[data-scene-live]", scene);
     if (phase) phase.textContent = text;
     if (live) live.textContent = text;
   };
 
   const finish = (scene) => {
+    clear(scene);
     scene.className = "pulse-scene is-complete";
-    announce(scene, "Break found: researcher to verifier");
-    const button = scene.querySelector("[data-replay]");
+    announce(scene, "Break found · researcher → verifier");
+    const button = $("[data-replay]", scene);
     if (button) button.disabled = false;
   };
 
   const play = (scene) => {
-    clearScene(scene);
-    if (reducedMotion.matches) {
-      finish(scene);
-      return;
-    }
-    const button = scene.querySelector("[data-replay]");
+    clear(scene);
+    if (reduced.matches) return finish(scene);
+
+    const button = $("[data-replay]", scene);
     if (button) button.disabled = true;
     scene.className = "pulse-scene is-playing";
-    announce(scene, "Run begins: loading recorded nodes");
-    schedule(scene, 180, () => { scene.classList.add("nodes-active"); announce(scene, "Flow: nodes activated"); });
-    schedule(scene, 720, () => { scene.classList.add("baseline-active"); announce(scene, "Check: baseline contracts pass"); });
-    schedule(scene, 1900, () => { scene.classList.remove("baseline-active"); scene.classList.add("candidate-active"); announce(scene, "Candidate swapped: schema remains valid"); });
-    schedule(scene, 2550, () => { scene.classList.add("broken-active"); announce(scene, "Break: researcher to verifier"); });
-    schedule(scene, 2870, () => { scene.classList.add("impact-active"); announce(scene, "Trace: downstream impact identified"); });
-    schedule(scene, 3370, () => { scene.classList.add("witness-active"); announce(scene, "Explain: trace-backed witness revealed"); });
-    schedule(scene, 3870, () => finish(scene));
+    announce(scene, "Loading recorded nodes");
+
+    // Flow, check, break, trace, explain. The order is the product.
+    after(scene, 160, () => { scene.classList.add("nodes-active"); announce(scene, "Flow · nodes resolved in topology order"); });
+    after(scene, 780, () => { scene.classList.add("baseline-active"); announce(scene, "Check · baseline contracts pass"); });
+    after(scene, 1900, () => {
+      scene.classList.remove("baseline-active");
+      scene.classList.add("candidate-active");
+      announce(scene, "Candidate swapped · schema still valid");
+    });
+    after(scene, 3050, () => { scene.classList.add("broken-active"); announce(scene, "Break · researcher → verifier"); });
+    after(scene, 3450, () => { scene.classList.add("impact-active"); announce(scene, "Trace · downstream impact identified"); });
+    after(scene, 3950, () => { scene.classList.add("witness-active"); announce(scene, "Explain · trace-backed witness recorded"); });
+    after(scene, 4550, () => finish(scene));
   };
 
-  document.querySelectorAll("[data-pulse-scene]").forEach((scene) => {
-    const button = scene.querySelector("[data-replay]");
+  $$("[data-pulse-scene]").forEach((scene) => {
+    const button = $("[data-replay]", scene);
     if (button) button.addEventListener("click", () => play(scene));
-    window.setTimeout(() => play(scene), 260);
+
+    // Autoplay once, only when the scene is actually on screen, and never
+    // move focus while it runs.
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          io.disconnect();
+          setTimeout(() => play(scene), 240);
+        });
+      }, { threshold: 0.25 });
+      io.observe(scene);
+    } else {
+      setTimeout(() => play(scene), 240);
+    }
   });
 
-  const playground = document.querySelector("[data-playground]");
+  /* ------------------------------------------------------- playground --- */
+
+  const playground = $("[data-playground]");
   if (playground) {
+    const result = $("[data-play-result]", playground);
+    const choices = $$("[data-play-choice]", playground);
+    const thumb = $(".segment-thumb", playground);
+    const run = $("[data-play-run]", playground);
     let choice = "baseline";
-    const result = playground.querySelector("[data-play-result]");
-    const choices = [...playground.querySelectorAll("[data-play-choice]")];
+
+    const moveThumb = () => {
+      const active = choices.find((b) => b.classList.contains("is-selected"));
+      if (!active || !thumb) return;
+      thumb.style.width = active.offsetWidth + "px";
+      thumb.style.transform = `translateX(${active.offsetLeft - choices[0].offsetLeft}px)`;
+    };
+
+    const reset = () => {
+      playground.className = "playground";
+      if (result) {
+        result.innerHTML =
+          "<strong>Select an output and run the check.</strong>" +
+          "<span>The graph will report the observed contract state here.</span>";
+      }
+    };
+
     const setChoice = (value) => {
       choice = value;
       choices.forEach((button) => {
-        const selected = button.dataset.playChoice === value;
-        button.classList.toggle("is-selected", selected);
-        button.setAttribute("aria-pressed", String(selected));
+        const on = button.dataset.playChoice === value;
+        button.classList.toggle("is-selected", on);
+        button.setAttribute("aria-pressed", String(on));
       });
-      playground.className = "playground";
-      if (result) result.innerHTML = "<strong>Select an output and run the check.</strong><span>The graph will report the observed contract state here.</span>";
+      moveThumb();
+      reset();
     };
-    choices.forEach((button) => button.addEventListener("click", () => setChoice(button.dataset.playChoice)));
-    const run = playground.querySelector("[data-play-run]");
-    if (run) run.addEventListener("click", () => {
-      playground.className = `playground is-running ${choice === "candidate" ? "is-candidate" : "is-baseline"}`;
-      if (result) result.innerHTML = choice === "candidate"
-        ? "<strong class=fail>BREAK: verified=true, opened_sources_count=0.</strong><span>The pulse stopped at researcher to verifier. The witness is the missing source access.</span>"
-        : "<strong class=pass>PASS: verified=true, opened_sources_count=1.</strong><span>The pulse reached verifier with the supporting source recorded.</span>";
-      if (reducedMotion.matches) playground.classList.add("is-settled");
-    });
+
+    choices.forEach((b) => b.addEventListener("click", () => setChoice(b.dataset.playChoice)));
+    requestAnimationFrame(moveThumb);
+    window.addEventListener("resize", moveThumb, { passive: true });
+
+    if (run) {
+      run.addEventListener("click", () => {
+        // Restart cleanly so a second run replays rather than doing nothing.
+        playground.className = "playground";
+        void playground.offsetWidth;
+        playground.className = `playground is-running ${choice === "candidate" ? "is-candidate" : "is-baseline"}`;
+        if (!result) return;
+        result.innerHTML = choice === "candidate"
+          ? "<strong class='fail'>BREAKING · verified=true with opened_sources_count=0.</strong>" +
+            "<span>The pulse stopped at researcher → verifier. The witness is the missing source access.</span>"
+          : "<strong class='pass'>PASS · verified=true with opened_sources_count=1.</strong>" +
+            "<span>The pulse reached verifier with the supporting source recorded.</span>";
+      });
+    }
   }
 
-  const modal = document.querySelector("[data-setup-modal]");
+  /* ------------------------------------------------------------ modal --- */
+
+  const modal = $("[data-setup-modal]");
   if (modal) {
-    const dialog = modal.querySelector(".setup-dialog");
-    const openers = [...document.querySelectorAll("[data-open-setup]")];
-    const closers = [...modal.querySelectorAll("[data-close-setup]")];
-    const tabs = [...modal.querySelectorAll("[data-setup-option]")];
-    const panels = [...modal.querySelectorAll("[data-setup-panel]")];
-    let previousFocus;
-    const focusables = () => [...modal.querySelectorAll('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])')];
-    const close = () => {
-      modal.classList.remove("is-open");
-      window.setTimeout(() => { modal.hidden = true; document.body.classList.remove("modal-open"); }, reducedMotion.matches ? 0 : 240);
-      if (previousFocus) previousFocus.focus();
+    const dialog = $(".setup-dialog", modal);
+    const tabs = $$("[data-setup-option]", modal);
+    const panels = $$("[data-setup-panel]", modal);
+    const rail = $(".tab-rail", modal);
+    let previous = null;
+
+    const focusable = () =>
+      $$('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])', modal)
+        .filter((el) => el.offsetParent !== null || el === dialog);
+
+    const moveRail = () => {
+      const active = tabs.find((t) => t.classList.contains("is-active"));
+      if (!active || !rail) return;
+      rail.style.width = active.offsetWidth + "px";
+      rail.style.transform = `translateX(${active.offsetLeft}px)`;
     };
+
+    const select = (value, focus) => {
+      tabs.forEach((tab) => {
+        const on = tab.dataset.setupOption === value;
+        tab.classList.toggle("is-active", on);
+        tab.setAttribute("aria-selected", String(on));
+        tab.tabIndex = on ? 0 : -1;
+        if (on && focus) tab.focus();
+      });
+      panels.forEach((panel) => {
+        const on = panel.dataset.setupPanel === value;
+        panel.hidden = !on;
+        panel.classList.toggle("is-active", on);
+      });
+      moveRail();
+    };
+
     const open = () => {
-      previousFocus = document.activeElement;
+      previous = document.activeElement;
       modal.hidden = false;
       document.body.classList.add("modal-open");
-      window.requestAnimationFrame(() => { modal.classList.add("is-open"); dialog.focus(); });
-    };
-    const select = (value) => {
-      tabs.forEach((tab) => {
-        const active = tab.dataset.setupOption === value;
-        tab.classList.toggle("is-active", active);
-        tab.setAttribute("aria-selected", String(active));
+      requestAnimationFrame(() => {
+        modal.classList.add("is-open");
+        moveRail();
+        dialog.focus();
       });
-      panels.forEach((panel) => { panel.hidden = panel.dataset.setupPanel !== value; panel.classList.toggle("is-active", panel.dataset.setupPanel === value); });
     };
-    openers.forEach((button) => button.addEventListener("click", open));
-    closers.forEach((button) => button.addEventListener("click", close));
+
+    const close = () => {
+      modal.classList.remove("is-open");
+      const done = () => {
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
+        if (previous && previous.isConnected) previous.focus();
+      };
+      reduced.matches ? done() : setTimeout(done, 240);
+    };
+
+    $$("[data-open-setup]").forEach((b) => b.addEventListener("click", open));
+    $$("[data-close-setup]", modal).forEach((b) => b.addEventListener("click", close));
     tabs.forEach((tab) => tab.addEventListener("click", () => select(tab.dataset.setupOption)));
+
     modal.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") { event.preventDefault(); close(); return; }
+      if (event.key === "Escape") { event.preventDefault(); return close(); }
+
+      // Roving tabs, as the tablist pattern expects.
+      if (event.target.matches("[data-setup-option]") && /^Arrow(Left|Right)$/.test(event.key)) {
+        event.preventDefault();
+        const i = tabs.indexOf(event.target);
+        const next = event.key === "ArrowRight" ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length;
+        return select(tabs[next].dataset.setupOption, true);
+      }
+
       if (event.key !== "Tab") return;
-      const items = focusables();
+      const items = focusable();
       if (!items.length) return;
-      const first = items[0]; const last = items[items.length - 1];
+      const first = items[0];
+      const last = items[items.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
-    modal.querySelectorAll("[data-copy-command]").forEach((button) => button.addEventListener("click", async () => {
-      const panel = button.closest(".setup-panel");
-      const command = panel.querySelector("[data-setup-command]").textContent;
-      try { await navigator.clipboard.writeText(command); } catch (error) {
-        const area = document.createElement("textarea"); area.value = command; area.setAttribute("readonly", ""); area.style.position = "fixed"; area.style.opacity = "0"; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
-      }
-      button.classList.add("copied");
-      const feedback = panel.querySelector("[data-copy-feedback]");
-      if (feedback) feedback.textContent = "Copied";
-      window.setTimeout(() => { button.classList.remove("copied"); if (feedback) feedback.textContent = ""; }, 1600);
-    }));
+
+    window.addEventListener("resize", moveRail, { passive: true });
   }
 
-  reducedMotion.addEventListener("change", () => document.querySelectorAll("[data-pulse-scene]").forEach(finish));
+  /* -------------------------------------------------------------- copy --- */
+
+  const copy = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (_) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(area);
+      area.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (__) { ok = false; }
+      area.remove();
+      return ok;
+    }
+  };
+
+  $$("[data-copy-command]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const panel = button.closest(".setup-panel");
+      const source = $("[data-setup-command]", panel);
+      const feedback = $("[data-copy-feedback]", panel);
+      const ok = await copy(source.textContent.trim());
+      button.classList.toggle("copied", ok);
+      if (feedback) feedback.textContent = ok ? "Copied" : "Press Ctrl+C to copy";
+      setTimeout(() => {
+        button.classList.remove("copied");
+        if (feedback) feedback.textContent = "";
+      }, 1800);
+    });
+  });
+
+  $$("[data-copy-inline]").forEach((button) => {
+    const line = button.closest(".install-line");
+    const source = $("[data-copy-source]", line);
+    button.addEventListener("click", async () => {
+      const ok = await copy(source.textContent.trim());
+      button.classList.toggle("copied", ok);
+      button.setAttribute("aria-label", ok ? "Command copied" : "Copy demo command");
+      setTimeout(() => {
+        button.classList.remove("copied");
+        button.setAttribute("aria-label", "Copy demo command");
+      }, 1800);
+    });
+  });
+
+  /* -------------------------------------------------- scroll traversal ---
+     Reaching a section is arriving at a node: the rail from the previous
+     section draws down, then the node resolves. Once only, never reversed. */
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-reached");
+        io.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -22% 0px", threshold: 0 });
+    $$(".section").forEach((section) => io.observe(section));
+  } else {
+    $$(".section").forEach((section) => section.classList.add("is-reached"));
+  }
+
+  /* ------------------------------------------------------------ header --- */
+
+  const header = $(".site-header");
+  if (header) {
+    const sentinel = document.createElement("div");
+    sentinel.setAttribute("aria-hidden", "true");
+    sentinel.style.cssText = "position:absolute;top:0;height:1px;width:1px";
+    document.body.prepend(sentinel);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        ([entry]) => header.classList.toggle("is-stuck", !entry.isIntersecting),
+        { threshold: 0 }
+      ).observe(sentinel);
+    }
+  }
+
+  reduced.addEventListener("change", () => {
+    if (reduced.matches) $$("[data-pulse-scene]").forEach(finish);
+  });
 })();
