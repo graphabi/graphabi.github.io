@@ -131,8 +131,16 @@
       }
     };
 
+    const sources = $("[data-play-sources]", playground);
+
     const setChoice = (value) => {
       choice = value;
+      // The candidate keeps the schema and changes one recorded value.
+      if (sources) {
+        sources.textContent = value === "candidate" ? "0" : "1";
+        sources.classList.toggle("is-breaking", value === "candidate");
+        sources.classList.toggle("is-passing", value !== "candidate");
+      }
       choices.forEach((button) => {
         const on = button.dataset.playChoice === value;
         button.classList.toggle("is-selected", on);
@@ -143,6 +151,7 @@
     };
 
     choices.forEach((b) => b.addEventListener("click", () => setChoice(b.dataset.playChoice)));
+    setChoice("baseline");
     requestAnimationFrame(moveThumb);
     window.addEventListener("resize", moveThumb, { passive: true });
     // Inter arriving late changes the label widths the thumb is sized from.

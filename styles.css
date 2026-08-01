@@ -1011,7 +1011,7 @@ h1 { margin-bottom: var(--s4) }
   grid-template-columns: 1fr minmax(140px, .9fr) 1fr;
   align-items: center;
   gap: var(--s3);
-  padding: var(--s7) var(--s6) var(--s6);
+  padding: var(--s6);
 }
 .playground-node {
   padding: var(--s3);
@@ -1023,6 +1023,36 @@ h1 { margin-bottom: var(--s4) }
 .playground-node strong, .playground-node small { display: block }
 .playground-node strong { font: 650 .875rem var(--mono); letter-spacing: -.01em }
 .playground-node small { margin-top: 6px; color: var(--subtle); font-size: .75rem }
+
+/* The producer's recorded values and the consumer's contract, side by side.
+   Switching the producer changes them, which is the whole point of the
+   control: the schema never moves, one number does. */
+.node-values {
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--border);
+}
+.node-values > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: 5px 0;
+}
+.node-values dt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--subtle);
+  font: .6875rem/1.4 var(--mono);
+}
+.node-values dd {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--text);
+  font: 600 .75rem/1.4 var(--mono);
+}
+.node-values dd.is-breaking { color: var(--fail-text) }
+.node-values dd.is-passing  { color: var(--pass-text) }
 .playground-node[data-play-node="producer"] .node-dot { background: var(--pulse); box-shadow: 0 0 0 4px var(--tint-pulse) }
 .playground.is-running.is-baseline .playground-node[data-play-node="consumer"] .node-dot { background: var(--pass); box-shadow: 0 0 0 4px var(--tint-pass) }
 .playground.is-running.is-candidate .playground-node[data-play-node="consumer"] .node-dot { background: var(--fail); box-shadow: 0 0 0 4px var(--tint-fail) }
@@ -1811,6 +1841,7 @@ body.modal-open { overflow: hidden }
     top: 50%; left: calc(50% + 14px);
     max-width: calc(50% - 20px);
     white-space: normal;
+    overflow-wrap: anywhere;
     line-height: 1.35;
     transform: translateY(-50%);
   }
@@ -1905,7 +1936,15 @@ body.modal-open { overflow: hidden }
   .playground-edge { height: 96px; --break-stop: .30 }
   .playground-edge .rail { top: 0; left: 50%; width: 2px; height: 100%; margin: 0 0 0 -1px }
   .playground-edge .rail-live { top: 0; left: 50%; width: 3px; height: 100%; margin: 0 0 0 -1.5px; transform: scaleY(0); transform-origin: top center }
-  .playground-edge small { top: 50%; left: calc(50% + 16px); transform: translateY(-50%) }
+  .playground-edge small {
+    top: 50%; left: calc(50% + 14px);
+    max-width: calc(50% - 20px);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+    text-align: left;
+    transform: translateY(-50%);
+  }
   .playground-pulse { top: 0; left: 50%; margin: -5.5px 0 0 -5.5px; transform: translateY(0) }
   .playground-break { top: 50%; left: 50%; margin: -9px 0 0 -8px }
   .playground-break i:first-child { top: 0 }
