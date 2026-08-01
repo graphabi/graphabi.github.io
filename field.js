@@ -509,6 +509,9 @@
 
   window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
   window.addEventListener("load", measure);
+  // Text reflowing after a late font swap moves every obstacle the field
+  // routes around, so the cached document-space rects have to be retaken.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 
   document.addEventListener("visibilitychange", () => {
     document.hidden ? stop() : start();

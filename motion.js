@@ -143,6 +143,8 @@
     choices.forEach((b) => b.addEventListener("click", () => setChoice(b.dataset.playChoice)));
     requestAnimationFrame(moveThumb);
     window.addEventListener("resize", moveThumb, { passive: true });
+    // Inter arriving late changes the label widths the thumb is sized from.
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveThumb);
 
     if (run) {
       run.addEventListener("click", () => {
