@@ -612,7 +612,7 @@
     canvas.style.height = H + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     build();
-    measure();
+    if (!coarseField) measure();
   };
 
   // Reduced motion: run the simulation to rest off-screen, paint one frame,
@@ -644,14 +644,19 @@
     const w = window.innerWidth;
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (Math.abs(w - lastW) < 2 && canvas.width === Math.round(w * dpr)) { measure(); return; }
+      if (Math.abs(w - lastW) < 2 && canvas.width === Math.round(w * dpr)) {
+        if (!coarseField) measure();
+        return;
+      }
       lastW = w;
       resize();
       if (reduced.matches) settle();
     }, 180);
   }, { passive: true });
 
-  window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
+  if (!coarseField) {
+    window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
+  }
 
   const updatePointer = (event, isFine) => {
     const now = performance.now();
@@ -707,7 +712,7 @@
   window.addEventListener("pointerup", releaseTouch, { passive: true });
   window.addEventListener("pointercancel", releaseTouch, { passive: true });
 
-  if ("IntersectionObserver" in window) {
+  if (!coarseField && "IntersectionObserver" in window) {
     const sections = [...document.querySelectorAll("main > section")];
     const sectionObserver = new IntersectionObserver((entries) => {
       const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -715,10 +720,10 @@
     }, { rootMargin: "-28% 0px -28% 0px", threshold: [0.05, 0.35, 0.7] });
     sections.forEach((section) => sectionObserver.observe(section));
   }
-  window.addEventListener("load", measure);
+  if (!coarseField) window.addEventListener("load", measure);
   // Text reflowing after a late font swap moves every obstacle the field
   // routes around, so the cached document-space rects have to be retaken.
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  if (!coarseField && document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 
   document.addEventListener("visibilitychange", () => {
     document.hidden ? stop() : start();
