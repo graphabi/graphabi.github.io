@@ -22,7 +22,12 @@
   const dark = window.matchMedia("(prefers-color-scheme: dark)");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  // Coarse-pointer devices get a deliberately cheaper simulation. The field
+  // remains alive and touch-aware, but avoids spending a mobile frame budget
+  // on forces whose detail is only visible during fine-pointer exploration.
+  const coarseField = !finePointer.matches && window.innerWidth <= 900;
   const constrained = Boolean(
+    coarseField ||
     (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
     (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
     (connection && connection.saveData)
@@ -346,6 +351,55 @@
     }
   };
 
+  // Mobile equilibrium keeps the graph cohesive with edge springs and a slow
+  // drift, then adds the same short touch convergence used by the full field.
+  // It intentionally omits pairwise repulsion, obstacle routing, and topology
+  // mutation. Those details reward a fine pointer but are costly under mobile
+  // CPU throttling and unnecessary behind compact foreground layouts.
+  const stepCoarse = (dt, t) => {
+    pointerEnergy += ((pointerTouch ? 1 : 0) - pointerEnergy) * Math.min(1, dt * 0.09);
+    pointerSpeed *= Math.pow(0.89, dt);
+
+    for (const e of edges) {
+      if (e.life < 0.02) continue;
+      const a = nodes[e.a], b = nodes[e.b];
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const f = (d - REST) * 0.0012 * e.life;
+      const ux = dx / d * f, uy = dy / d * f;
+      a.vx += ux; a.vy += uy;
+      b.vx -= ux; b.vy -= uy;
+    }
+
+    for (let i = 0; i < nodes.length; i++) {
+      const p = nodes[i];
+      if (pointerEnergy > 0.01) {
+        const dx = p.x - pointerX, dy = p.y - pointerY;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 40000 && d2 > 1) {
+          const d = Math.sqrt(d2);
+          const near = 1 - d / 200;
+          const ring = 30 + p.z * 22;
+          const radial = (d - ring) * 0.0038 * near * pointerEnergy;
+          p.vx -= dx / d * radial;
+          p.vy -= dy / d * radial;
+        }
+      }
+
+      const w = 0.005 + p.z * 0.008;
+      p.vx += Math.cos(t * p.ps + p.px) * w;
+      p.vy += Math.sin(t * p.ps + p.py) * w;
+      p.vx *= 0.88; p.vy *= 0.88;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+
+      const m = 32;
+      if (p.x < m) p.vx += (m - p.x) * 0.018;
+      if (p.x > W - m) p.vx -= (p.x - (W - m)) * 0.018;
+      if (p.y < m) p.vy += (m - p.y) * 0.018;
+      if (p.y > H - m) p.vy -= (p.y - (H - m)) * 0.018;
+    }
+  };
+
   /* ---------------------------------------------------------- pulses --- */
 
   const spawn = () => {
@@ -474,12 +528,51 @@
     }
   };
 
+  // Batch coarse-field paths to keep Canvas calls and style changes bounded.
+  // Depth is preserved in node radius, while the full field keeps per-edge
+  // depth, transient topology, and pulse trails for desktop exploration.
+  const drawCoarse = () => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for (const e of edges) {
+      if (e.life < 0.02) continue;
+      const a = nodes[e.a], b = nodes[e.b];
+      const c = control(a, b, e.bow);
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(c.x, c.y, b.x, b.y);
+    }
+    ctx.strokeStyle = rgba(C.mesh, C.isDark ? 0.28 : 0.22);
+    ctx.lineWidth = 0.9;
+    ctx.stroke();
+
+    ctx.beginPath();
+    for (const p of nodes) {
+      ctx.moveTo(p.x + p.r, p.y);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    }
+    ctx.fillStyle = rgba(C.mesh, C.isDark ? 0.48 : 0.40);
+    ctx.fill();
+
+    for (const p of pulses) {
+      const hop = p.path[p.i];
+      const a = nodes[hop.from], b = nodes[hop.to];
+      if (!a || !b) continue;
+      const head = at(a, control(a, b, hop.edge.bow), b, p.t);
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, 2.2, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(C.pulse, 0.72);
+      ctx.fill();
+    }
+  };
+
   /* ------------------------------------------------------------ loop --- */
 
   const frame = (now) => {
     if (!running) return;
     raf = requestAnimationFrame(frame);
-    if (constrained && now - lastFrameAt < 30) return;
+    const cadence = coarseField ? 48 : constrained ? 30 : 0;
+    if (cadence && now - lastFrameAt < cadence) return;
     lastFrameAt = now;
     if (!last) last = now;
     // Clamp dt so a backgrounded tab never resumes with an exploded step.
@@ -487,9 +580,11 @@
     last = now;
     const t = now / 1000;
     // Forces are tuned per 60 fps frame, so dt is expressed in frame units.
-    step(dt * 60, t);
+    if (coarseField) stepCoarse(dt * 60, t);
+    else step(dt * 60, t);
     stepPulses(dt, t);
-    draw();
+    if (coarseField) drawCoarse();
+    else draw();
   };
 
   const start = () => {
@@ -518,16 +613,20 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     build();
     measure();
-    if (reduced.matches) settle();
   };
 
   // Reduced motion: run the simulation to rest off-screen, paint one frame,
   // and never start a loop. The field becomes a still topology, not nothing.
   const settle = () => {
     stop();
-    for (let i = 0; i < 220; i++) step(1, 0);
+    const iterations = constrained ? 48 : 120;
+    for (let i = 0; i < iterations; i++) {
+      if (coarseField) stepCoarse(1, 0);
+      else step(1, 0);
+    }
     pulses = [];
-    draw();
+    if (coarseField) drawCoarse();
+    else draw();
   };
 
   /* --------------------------------------------------------- observe --- */
@@ -548,6 +647,7 @@
       if (Math.abs(w - lastW) < 2 && canvas.width === Math.round(w * dpr)) { measure(); return; }
       lastW = w;
       resize();
+      if (reduced.matches) settle();
     }, 180);
   }, { passive: true });
 
