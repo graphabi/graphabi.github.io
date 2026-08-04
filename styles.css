@@ -456,7 +456,7 @@ h1 { margin-bottom: var(--s4) }
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: var(--surface-2);
@@ -601,7 +601,7 @@ h1 { margin-bottom: var(--s4) }
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 var(--s2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1013,7 +1013,7 @@ h1 { margin-bottom: var(--s4) }
 .playground-choice {
   position: relative;
   z-index: 1;
-  min-height: 38px;
+  min-height: 44px;
   padding: 0 var(--s2);
   border: 0;
   border-radius: 7px;
@@ -1776,10 +1776,10 @@ h1 { margin-bottom: var(--s4) }
 .modal-close {
   position: sticky;
   top: 0;
-  flex: 0 0 40px;
+  flex: 0 0 44px;
   display: grid;
   place-items: center;
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--surface);
@@ -1859,7 +1859,7 @@ h1 { margin-bottom: var(--s4) }
 }
 .copy-button {
   flex: 0 0 auto;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 var(--s2);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -2118,7 +2118,7 @@ body.modal-open { overflow: hidden }
   .setup-panel { padding: var(--s3) }
   .command-line { flex-direction: column; align-items: stretch; padding: var(--s2) }
   .command-line .install-prompt { display: none }
-  .copy-button { width: 100%; min-height: 40px }
+  .copy-button { width: 100% }
 
   .footer-inner { flex-direction: column; align-items: flex-start; gap: var(--s3); padding: var(--s5) 0 }
 }
@@ -2151,6 +2151,20 @@ body.modal-open { overflow: hidden }
   .playground.is-running .playground-pulse { opacity: 1 }
   .playground.is-running .playground-edge .rail-live { transform: scaleX(1) }
   .playground.is-running.is-candidate .playground-edge .rail-live { transform: scaleX(var(--break-stop)) }
-  .playground.is-running.is-candidate .playground-break { opacity: 1 }
+  .playground.is-running.is-candidate .playground-break {
+    opacity: 1;
+    transition: none !important;
+  }
+  .playground.is-running.is-candidate .playground-edge-impact .rail {
+    opacity: .78;
+    animation: none !important;
+  }
   .button::after { display: none }
+}
+
+@media (max-width: 700px) and (prefers-reduced-motion: reduce) {
+  .playground.is-running .playground-edge .rail-live { transform: scaleY(1) }
+  .playground.is-running.is-candidate .playground-edge .rail-live {
+    transform: scaleY(var(--break-stop));
+  }
 }

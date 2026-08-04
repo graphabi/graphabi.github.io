@@ -724,7 +724,10 @@
     document.hidden ? stop() : start();
   });
 
-  dark.addEventListener("change", () => { readPalette(); if (reduced.matches) draw(); });
+  dark.addEventListener("change", () => {
+    readPalette();
+    if (reduced.matches) coarseField ? drawCoarse() : draw();
+  });
 
   reduced.addEventListener("change", () => {
     if (reduced.matches) settle();
