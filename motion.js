@@ -1,5 +1,5 @@
 /* =============================================================================
-   GraphABI — product motion
+   GraphABI: product motion
    -----------------------------------------------------------------------------
    Everything here is causal. Motion exists to show where meaning flowed, what
    checked it, where it stopped, and what that reached. Nothing loops, and no
@@ -113,7 +113,9 @@
     const choices = $$("[data-play-choice]", playground);
     const thumb = $(".segment-thumb", playground);
     const run = $("[data-play-run]", playground);
+    const witness = $("[data-play-witness]", playground);
     let choice = "baseline";
+    let witnessTimer = 0;
 
     const moveThumb = () => {
       const active = choices.find((b) => b.classList.contains("is-selected"));
@@ -123,7 +125,12 @@
     };
 
     const reset = () => {
+      clearTimeout(witnessTimer);
       playground.className = "playground";
+      if (witness) {
+        witness.hidden = true;
+        witness.classList.remove("is-open");
+      }
       if (result) {
         result.innerHTML =
           "<strong>Select an output and run the check.</strong>" +
@@ -164,11 +171,21 @@
         void playground.offsetWidth;
         playground.className = `playground is-running ${choice === "candidate" ? "is-candidate" : "is-baseline"}`;
         if (!result) return;
-        result.innerHTML = choice === "candidate"
-          ? "<strong class='fail'>BREAKING · verified=true with opened_sources_count=0.</strong>" +
-            "<span>The pulse stopped at researcher → verifier. The witness is the missing source access.</span>"
-          : "<strong class='pass'>PASS · verified=true with opened_sources_count=1.</strong>" +
-            "<span>The pulse reached verifier with the supporting source recorded.</span>";
+        if (choice === "candidate") {
+          result.innerHTML =
+            "<strong class='fail'>BREAKING · verified=true with opened_sources_count=0.</strong>" +
+            "<span>First break: researcher → verifier. Affected: verifier, decision_maker, publisher.</span>";
+          if (witness) {
+            witnessTimer = setTimeout(() => {
+              witness.hidden = false;
+              requestAnimationFrame(() => witness.classList.add("is-open"));
+            }, reduced.matches ? 0 : 980);
+          }
+        } else {
+          result.innerHTML =
+            "<strong class='pass'>PASS · verified=true with opened_sources_count=1.</strong>" +
+            "<span>The observed baseline satisfied the verifier's explicit contract.</span>";
+        }
       });
     }
   }
@@ -236,7 +253,8 @@
       requestAnimationFrame(() => {
         modal.classList.add("is-open");
         moveRail();
-        dialog.focus();
+        const activeTab = tabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+        (activeTab || dialog).focus();
       });
     };
 

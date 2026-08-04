@@ -68,7 +68,7 @@
         <p class="hero-lede">GraphABI finds the first edge where meaning changed, shows the exact recorded witness, and traces every downstream node that may be affected.</p>
         <div class="hero-actions">
           <button class="button primary" type="button" data-open-setup>Try GraphABI</button>
-          <a class="button secondary" href="https://github.com/graphabi/graphabi">View source <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
+          <a class="button secondary" href="https://github.com/graphabi/graphabi">View on GitHub <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
         </div>
         <div class="install-line">
           <span class="install-prompt" aria-hidden="true">$</span>
@@ -121,7 +121,7 @@
 
     <section id="playground" class="section" data-rail-node="Playground" aria-labelledby="playground-title">
       <div class="shell">
-        <div class="section-heading">
+        <div class="section-heading bug-heading">
           <div><p class="eyebrow"><i aria-hidden="true"></i>Graph playground</p><h2 id="playground-title">Run the edge check.</h2></div>
           <p>Choose the recorded producer output, then watch the semantic pulse travel toward the verifier. The candidate keeps its schema and breaks its meaning.</p>
         </div>
@@ -134,8 +134,8 @@
             </div>
             <button class="button secondary playground-run" type="button" data-play-run>Run semantic check</button>
           </div>
-          <div class="playground-graph" role="img" aria-label="A producer sends a semantic pulse through an edge to a consumer. The pulse passes for baseline and stops at the edge for the candidate.">
-            <div class="playground-node" data-play-node="producer">
+          <div class="playground-graph" role="img" aria-label="A recorded producer output crosses a contract edge to verifier. The baseline passes. The candidate stops at researcher to verifier and marks verifier, decision maker, and publisher as affected.">
+            <div class="playground-node playground-node-detail" data-play-node="producer">
               <span class="node-dot" aria-hidden="true"></span>
               <strong>researcher</strong>
               <small>recorded producer output</small>
@@ -144,13 +144,13 @@
                 <div><dt>metadata.opened_sources_count</dt><dd data-play-sources>1</dd></div>
               </dl>
             </div>
-            <div class="playground-edge" data-play-edge>
+            <div class="playground-edge playground-edge-primary" data-play-edge>
               <span class="rail" aria-hidden="true"></span><span class="rail-live" aria-hidden="true"></span>
               <span class="playground-pulse" aria-hidden="true"></span>
               <span class="playground-break" aria-hidden="true"><i></i><i></i></span>
-              <small>verified_requires_opened_source</small>
+              <small>verified_requires_opened_supporting_source</small>
             </div>
-            <div class="playground-node" data-play-node="consumer">
+            <div class="playground-node playground-node-detail" data-play-node="consumer">
               <span class="node-dot" aria-hidden="true"></span>
               <strong>verifier</strong>
               <small>declares the contract</small>
@@ -159,8 +159,21 @@
                 <div><dt>require</dt><dd>opened_sources_count &gt; 0</dd></div>
               </dl>
             </div>
+            <div class="playground-edge playground-edge-impact" aria-hidden="true"><span class="rail"></span></div>
+            <div class="playground-node playground-node-impact" data-play-node="decision"><span class="node-dot" aria-hidden="true"></span><strong>decision_maker</strong><small>affected downstream</small></div>
+            <div class="playground-edge playground-edge-impact" aria-hidden="true"><span class="rail"></span></div>
+            <div class="playground-node playground-node-impact" data-play-node="publisher"><span class="node-dot" aria-hidden="true"></span><strong>publisher</strong><small>terminal side effect</small></div>
           </div>
           <div class="playground-result" data-play-result aria-live="polite"><strong>Select an output and run the check.</strong><span>The graph will report the observed contract state here.</span></div>
+          <article class="playground-witness" data-play-witness hidden>
+            <div><span>Trace-backed witness · candidate-003</span><strong><code>verified=true</code> arrived without an opened supporting source.</strong></div>
+            <dl>
+              <div><dt>Expected</dt><dd><code>opened_sources_count &gt; 0</code></dd></div>
+              <div><dt>Observed</dt><dd><code>opened_sources_count = 0</code></dd></div>
+              <div><dt>Repair</dt><dd>Before <code>verifier</code></dd></div>
+              <div><dt>Affected</dt><dd><code>verifier → decision_maker → publisher</code></dd></div>
+            </dl>
+          </article>
         </div>
       </div>
     </section>
@@ -223,27 +236,21 @@
     <span class="key">producer:</span> researcher
     <span class="key">consumer:</span> verifier
     <span class="key">invariants:</span>
-      - <span class="key">id:</span> verified_requires_opened_source
-        <span class="key">evaluator:</span> implication
+      - <span class="key">id:</span> verified_requires_opened_supporting_source
+        <span class="key">evaluator:</span> provenance
         <span class="key">severity:</span> <span class="sev">breaking</span>
-        <span class="key">when:</span>
-          <span class="key">path:</span> output.verified
-          <span class="key">equals:</span> <span class="bool">true</span>
-        <span class="key">require:</span>
-          <span class="key">path:</span> metadata.opened_sources_count
-          <span class="key">greater_than:</span> <span class="num">0</span></code></pre>
+        <span class="key">rule:</span> opened_supporting_source</code></pre>
           </div>
-          <div class="evaluator-list">
-            <p class="list-label">Shipped evaluators</p>
+          <div class="evaluator-list contract-anatomy">
+            <p class="list-label">Contract anatomy</p>
             <ul>
-              <li><span>01</span> Implication</li>
-              <li><span>02</span> Provenance</li>
-              <li><span>03</span> Preservation</li>
-              <li><span>04</span> Unit consistency</li>
-              <li><span>05</span> Authority</li>
-              <li><span>06</span> Freshness</li>
+              <li><span>01</span><div><strong>Producer</strong><small><code>researcher</code></small></div></li>
+              <li><span>02</span><div><strong>Consumer</strong><small><code>verifier</code></small></div></li>
+              <li><span>03</span><div><strong>Explicit invariant</strong><small><code>verified</code> requires source access</small></div></li>
+              <li><span>04</span><div><strong>Severity</strong><small>breaking</small></div></li>
+              <li><span>05</span><div><strong>Observed witness</strong><small><code>candidate-003</code></small></div></li>
             </ul>
-            <a class="edge-link" href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md">Add an evaluator without changing core <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
+            <a class="edge-link" href="https://github.com/graphabi/graphabi/blob/main/docs/contract-format.md">Read the contract format <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true" focusable="false"><path d="M3 9L9 3M9 3H4M9 3V8"/></svg></a>
           </div>
         </div>
       </div>
@@ -324,7 +331,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
   <span class="key">"first_breaking_edge"</span>: {
     <span class="key">"producer"</span>: <span class="string">"researcher"</span>,
     <span class="key">"consumer"</span>: <span class="string">"verifier"</span>,
-    <span class="key">"contract"</span>: <span class="string">"verified_requires_opened_source"</span>
+    <span class="key">"contract"</span>: <span class="string">"verified_requires_opened_supporting_source"</span>
   },
   <span class="key">"witness"</span>: {
     <span class="key">"run"</span>: <span class="string">"candidate-003"</span>,
@@ -365,16 +372,43 @@ Affected downstream nodes: verifier, decision_maker, publisher
       </div>
     </section>
 
-    <section class="section roadmap-section" data-rail-node="Roadmap" aria-labelledby="roadmap-title">
+    <section class="section proof-section" data-rail-node="Proof" aria-labelledby="proof-title">
       <div class="shell">
-        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Public alpha roadmap</p><h2 id="roadmap-title">The next edges are explicit.</h2></div><p>Planned means planned, not hidden behind a maturity claim.</p></div>
-        <div class="roadmap-rail">
-          <a href="https://github.com/graphabi/graphabi/issues/1"><span>01</span><strong>Causal pairing for loops</strong><small>Planned</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/2"><span>02</span><strong>Contract coverage</strong><small>Planned</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/3"><span>03</span><strong>OpenTelemetry ingestion</strong><small>Planned</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/4"><span>04</span><strong>Second framework adapter</strong><small>Planned</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/5"><span>05</span><strong>Model-migration example</strong><small>Planned</small></a>
+        <div class="proof-intro"><p class="eyebrow"><i aria-hidden="true"></i>Measured technical proof</p><h2 id="proof-title">Small surface.<br>Serious checks.</h2><p>Current branch measurements, linked to the source that enforces them.</p></div>
+        <dl class="proof-grid">
+          <div><dt>Tests</dt><dd><strong>106</strong><small>passing locally</small></dd></div>
+          <div><dt>Coverage</dt><dd><strong>93.05%</strong><small>85% CI floor</small></dd></div>
+          <div><dt>Python CI</dt><dd><strong>3.12 · 3.13</strong><small>both required</small></dd></div>
+          <div><dt>Evaluators</dt><dd><strong>6 families</strong><small>deterministic registry</small></dd></div>
+          <div><dt>Runtime</dt><dd><strong>Local-first</strong><small>no required API key</small></dd></div>
+          <div><dt>Adapter</dt><dd><strong>LangGraph</strong><small>one maintained adapter</small></dd></div>
+        </dl>
+        <p class="proof-note">Benchmarks cover synthetic graphs at 10, 100, and 1,000 nodes. They do not establish production scale. <a href="https://github.com/graphabi/graphabi/tree/main/benchmarks">Inspect the methodology.</a></p>
+      </div>
+    </section>
+
+    <section class="section limitations-section" data-rail-node="Limits" aria-labelledby="limitations-title">
+      <div class="shell">
+        <div class="limitations-lead"><span>Proof boundary</span><h2 id="limitations-title">What GraphABI does not prove.</h2><p>Honest uncertainty is part of the interface.</p></div>
+        <ul class="limitations-list">
+          <li><span>01</span><p>GraphABI evaluates explicit contracts. It does not understand arbitrary meaning.</p></li>
+          <li><span>02</span><p>A passing observed edge does not prove unobserved branches or inputs are compatible.</p></li>
+          <li><span>03</span><p>Trace schema 0.1 does not yet pair repeated loop or retry occurrences.</p></li>
+          <li><span>04</span><p>LangGraph is the only maintained adapter. OpenTelemetry and OpenInference ingestion are planned.</p></li>
+        </ul>
+        <a class="limitations-link" href="https://github.com/graphabi/graphabi/blob/main/docs/limitations.md">Read every current limitation <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+
+    <section class="section contribution-section" data-rail-node="Contribute" aria-labelledby="contribution-title">
+      <div class="shell">
+        <div class="contribution-lead"><p class="eyebrow"><i aria-hidden="true"></i>Choose a real edge</p><h2 id="contribution-title">Three useful ways in.</h2><p>Each path has an architecture boundary, acceptance criteria, and a maintainer review point.</p></div>
+        <div class="contribution-paths">
+          <a href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md"><span>Evaluator</span><strong>Add one deterministic contract family.</strong><small>Start with the registry and adversarial tests.</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/4"><span>Adapter</span><strong>Prove the trace boundary with a second framework.</strong><small>Design agreement required before implementation.</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/5"><span>Example</span><strong>Record a real model migration honestly.</strong><small>Optional credentials, explicit cost, no default network call.</small></a>
         </div>
+        <p class="contribution-footer"><a href="https://github.com/graphabi/graphabi/issues">Browse all issues</a><a href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Read contributing</a><a href="https://github.com/graphabi/graphabi/discussions">Open a design discussion</a></p>
       </div>
     </section>
 
@@ -383,9 +417,9 @@ Affected downstream nodes: verifier, decision_maker, publisher
         <div class="final-cta">
           <div class="cta-mark" aria-hidden="true"><span class="cta-rail"></span><i></i><i></i></div>
           <p class="eyebrow"><i aria-hidden="true"></i>Semantic Compatibility Infrastructure</p>
-          <h2 id="cta-title">Find where meaning broke.</h2>
-          <p class="cta-lede">Run GraphABI locally, inspect the witness, and help define the edge-level contracts agent graphs need.</p>
-          <div class="hero-actions"><button class="button primary" type="button" data-open-setup>Try GraphABI</button><a class="button secondary" href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Contribute</a></div>
+          <h2 id="cta-title">Catch the first broken edge.</h2>
+          <p class="cta-lede">Run the local demo, read the contract, and inspect the trace-backed witness.</p>
+          <div class="hero-actions"><button class="button primary" type="button" data-open-setup>Try demo</button><a class="button secondary" href="https://github.com/graphabi/graphabi/blob/main/docs/contract-format.md">Read contracts</a><a class="button secondary" href="https://github.com/graphabi/graphabi">Star on GitHub</a></div>
         </div>
       </div>
     </section>
@@ -395,23 +429,21 @@ Affected downstream nodes: verifier, decision_maker, publisher
     <div class="modal-backdrop" data-close-setup></div>
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title" aria-describedby="setup-description" tabindex="-1">
       <div class="setup-dialog-header">
-        <div><p class="eyebrow"><i aria-hidden="true"></i>Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose the path that matches your workflow. Every command below is available now or clearly marked as planned.</p></div>
+        <div><p class="eyebrow"><i aria-hidden="true"></i>Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose a setup path that works today. GraphABI is installed from Git until the first package release is approved.</p></div>
         <button class="modal-close" type="button" data-close-setup aria-label="Close setup"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path d="M4 4L12 12M12 4L4 12"/></svg></button>
       </div>
       <div class="setup-tabs" role="tablist" aria-label="Setup options">
         <button class="setup-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="setup-panel-uv" id="setup-tab-uv" data-setup-option="uv">uv</button>
         <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-pipx" id="setup-tab-pipx" data-setup-option="pipx">pipx</button>
-        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-action" id="setup-tab-action" data-setup-option="action">GitHub Action</button>
+        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-source" id="setup-tab-source" data-setup-option="source">Source</button>
         <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-langgraph" id="setup-tab-langgraph" data-setup-option="langgraph">LangGraph</button>
-        <button class="setup-tab" type="button" role="tab" tabindex="-1" aria-selected="false" aria-controls="setup-panel-otel" id="setup-tab-otel" data-setup-option="otel">OpenTelemetry</button>
         <span class="tab-rail" aria-hidden="true"></span>
       </div>
       <div class="setup-panels">
         <div class="setup-panel is-active" role="tabpanel" tabindex="0" id="setup-panel-uv" aria-labelledby="setup-tab-uv" data-setup-panel="uv"><div class="setup-panel-meta"><strong>Run from Git with uv</strong><span class="support-badge available">Available now</span></div><p>Run the deterministic demo without a local install or API key.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy uv command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
         <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-pipx" aria-labelledby="setup-tab-pipx" data-setup-panel="pipx" hidden><div class="setup-panel-meta"><strong>Run from Git with pipx</strong><span class="support-badge available">Available now</span></div><p>Use pipx to run the CLI directly from the public repository. GraphABI is not published to PyPI.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>pipx run --spec git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy pipx command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-action" aria-labelledby="setup-tab-action" data-setup-panel="action" hidden><div class="setup-panel-meta"><strong>Invoke from GitHub Actions</strong><span class="support-badge cli">CLI invocation</span></div><p>No official composite action is shipped yet. Invoke the same local CLI in a workflow step.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>- run: uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy GitHub Actions command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-source" aria-labelledby="setup-tab-source" data-setup-panel="source" hidden><div class="setup-panel-meta"><strong>Clone and sync the repository</strong><span class="support-badge available">Available now</span></div><p>Use the locked development environment for examples, tests, and contribution work.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>git clone https://github.com/graphabi/graphabi.git &amp;&amp; cd graphabi &amp;&amp; uv sync</code><button class="copy-button" type="button" data-copy-command aria-label="Copy source setup command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
         <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-langgraph" aria-labelledby="setup-tab-langgraph" data-setup-panel="langgraph" hidden><div class="setup-panel-meta"><strong>Instrument LangGraph</strong><span class="support-badge available">Adapter available</span></div><p>Install GraphABI from Git, then run the included LangGraph research graph or add the adapter to your trace boundary.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uv add "graphabi @ git+https://github.com/graphabi/graphabi"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy LangGraph command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-otel" aria-labelledby="setup-tab-otel" data-setup-panel="otel" hidden><div class="setup-panel-meta"><strong>OpenTelemetry ingestion</strong><span class="support-badge planned">Planned</span></div><p>OpenTelemetry ingestion is on the public roadmap and is not available in v0.1.0-alpha.1.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>echo "OpenTelemetry ingestion is planned, not shipped"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy OpenTelemetry status">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
       </div>
     </section>
   </div>
