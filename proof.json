@@ -1,0 +1,20 @@
+{
+  "tests": 112,
+  "coverage_percent": 92.94,
+  "python_versions": [
+    "3.12",
+    "3.13"
+  ],
+  "evaluator_names": [
+    "authority",
+    "completeness",
+    "freshness",
+    "implication",
+    "provenance",
+    "set_preservation",
+    "unit_consistency"
+  ],
+  "maintained_adapters": [
+    "langgraph"
+  ]
+}

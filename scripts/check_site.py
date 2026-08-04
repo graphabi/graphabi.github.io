@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -16,6 +17,8 @@ class SiteParser(HTMLParser):
         self.ids: set[str] = set()
         self.references: list[tuple[str, str]] = []
         self.field_is_hidden = False
+        self.proof_values: dict[str, str] = {}
+        self.active_proof: str | None = None
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
@@ -26,6 +29,19 @@ class SiteParser(HTMLParser):
                 self.references.append((name, reference))
         if tag == "canvas" and "data-field" in values:
             self.field_is_hidden = values.get("aria-hidden") == "true"
+        if proof := values.get("data-proof"):
+            self.active_proof = proof
+
+    def handle_data(self, data: str) -> None:
+        if self.active_proof:
+            self.proof_values[self.active_proof] = (
+                self.proof_values.get(self.active_proof, "") + data
+            )
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "strong" and self.active_proof:
+            self.proof_values[self.active_proof] = self.proof_values[self.active_proof].strip()
+            self.active_proof = None
 
 
 def main() -> int:
@@ -46,6 +62,18 @@ def main() -> int:
 
     if not parser.field_is_hidden:
         errors.append("The decorative field must remain aria-hidden.")
+
+    proof = json.loads((ROOT / "proof.json").read_text(encoding="utf-8"))
+    expected_proof = {
+        "tests": str(proof["tests"]),
+        "coverage": f"{proof['coverage_percent']:.2f}%",
+        "python": " · ".join(proof["python_versions"]),
+        "evaluators": f"{len(proof['evaluator_names'])} types",
+    }
+    if parser.proof_values != expected_proof:
+        errors.append(
+            f"Public proof does not match proof.json: {parser.proof_values!r} != {expected_proof!r}"
+        )
 
     if errors:
         print("Site verification failed:")
