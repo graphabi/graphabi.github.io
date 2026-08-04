@@ -603,7 +603,7 @@
   /* ------------------------------------------------------------ size --- */
 
   const resize = () => {
-    dpr = Math.min(constrained ? 1.25 : 2, window.devicePixelRatio || 1);
+    dpr = Math.min(coarseField ? 1 : constrained ? 1.25 : 2, window.devicePixelRatio || 1);
     W = window.innerWidth;
     H = window.innerHeight;
     canvas.width = Math.round(W * dpr);
