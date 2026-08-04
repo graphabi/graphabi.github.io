@@ -632,9 +632,15 @@
   /* --------------------------------------------------------- observe --- */
 
   readPalette();
-  resize();
-
-  if (reduced.matches) settle(); else start();
+  const initialize = () => {
+    resize();
+    if (reduced.matches) settle(); else start();
+  };
+  // Keep script evaluation and canvas construction in separate tasks on
+  // coarse-pointer devices. The field appears on the next paint while the
+  // foreground remains responsive during mobile startup.
+  if (coarseField) requestAnimationFrame(initialize);
+  else initialize();
 
   let resizeTimer = 0;
   let lastW = window.innerWidth;
