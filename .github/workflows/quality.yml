@@ -1,0 +1,24 @@
+name: Site quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Check tracked text
+        run: python3 scripts/check_text.py
+      - name: Check local links and semantics
+        run: python3 scripts/check_site.py
+      - name: Check JavaScript syntax
+        run: |
+          node --check field.js
+          node --check motion.js
