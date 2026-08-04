@@ -7,3 +7,6 @@ GitHub Pages serves `index.html` directly from the `main` branch root. Keep this
 small: semantic HTML, local CSS and JavaScript, local SVG/PNG assets, and no framework, analytics,
 cookies, web fonts, CDN, or build service. Motion must explain semantic flow and support
 `prefers-reduced-motion`.
+
+The site quality workflow checks public proof metrics and generated brand assets against the core
+repository so the two public surfaces cannot drift silently.
