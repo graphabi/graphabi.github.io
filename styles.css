@@ -1,5 +1,5 @@
 /* ==========================================================================
-   GraphABI — Semantic Pulse
+   GraphABI: Semantic Pulse
    Two graph languages, in deliberate opposition:
    - the ambient field is organic, continuous and never resolves;
    - every product surface is precise, deterministic, and stops.
@@ -249,6 +249,7 @@ code, pre, .mono { font-family: var(--mono); font-variant-ligatures: none }
   z-index: 0;
   pointer-events: none;
   background:
+    radial-gradient(58% 58% at 30% 30%, var(--bg) 0%, var(--bg) 38%, transparent 78%),
     radial-gradient(120% 70% at 50% 0%, transparent 40%, var(--bg) 100%),
     radial-gradient(80% 50% at 12% 22%, var(--tint-pulse), transparent 70%);
 }
@@ -523,6 +524,37 @@ h1 { margin-bottom: var(--s4) }
   line-height: 1.6;
   text-wrap: pretty;
 }
+
+/* Section composition changes with the kind of evidence being presented. */
+.bug-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, .6fr);
+  align-items: start;
+}
+.bug-heading h2 { max-width: 9ch; font-size: clamp(2.75rem, 6.4vw, 5.75rem) }
+.bug-heading > p {
+  margin-top: var(--s9);
+  padding: var(--s3) 0 var(--s3) var(--s3);
+  border-left: 1px solid var(--pulse);
+}
+
+.terminal-section > .shell {
+  display: grid;
+  grid-template-columns: minmax(260px, .56fr) minmax(0, 1.44fr);
+  align-items: start;
+  gap: var(--s8);
+}
+.terminal-section .section-heading { display: block; margin: var(--s3) 0 0 }
+.terminal-section .section-heading > p { margin-top: var(--s3); font-size: .9375rem }
+
+.report-section {
+  margin-top: var(--s8);
+  border-block: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-sunk) 78%, transparent);
+}
+.report-section > .shell { padding-bottom: var(--s10) }
+.report-section .section-heading { align-items: start }
+.report-section .section-heading h2 { max-width: 12ch }
 
 /* Shared surface treatment for every instrument panel. */
 .pulse-scene, .playground, .payload, .method-rail, .code-layout,
@@ -1008,10 +1040,10 @@ h1 { margin-bottom: var(--s4) }
 
 .playground-graph {
   display: grid;
-  grid-template-columns: 1fr minmax(140px, .9fr) 1fr;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(120px, .72fr) minmax(180px, 1.1fr) 72px minmax(120px, .72fr) 72px minmax(108px, .64fr);
   align-items: center;
-  gap: var(--s3);
-  padding: var(--s6);
+  gap: var(--s2);
+  padding: var(--s5);
 }
 .playground-node {
   padding: var(--s3);
@@ -1023,6 +1055,9 @@ h1 { margin-bottom: var(--s4) }
 .playground-node strong, .playground-node small { display: block }
 .playground-node strong { font: 650 .875rem var(--mono); letter-spacing: -.01em }
 .playground-node small { margin-top: 6px; color: var(--subtle); font-size: .75rem }
+.playground-node-impact { padding: var(--s2) }
+.playground-node-impact strong { overflow-wrap: anywhere; font-size: .75rem }
+.playground-node-impact small { font-size: .6875rem; line-height: 1.45 }
 
 /* The producer's recorded values and the consumer's contract, side by side.
    Switching the producer changes them, which is the whole point of the
@@ -1056,6 +1091,8 @@ h1 { margin-bottom: var(--s4) }
 .playground-node[data-play-node="producer"] .node-dot { background: var(--pulse); box-shadow: 0 0 0 4px var(--tint-pulse) }
 .playground.is-running.is-baseline .playground-node[data-play-node="consumer"] .node-dot { background: var(--pass); box-shadow: 0 0 0 4px var(--tint-pass) }
 .playground.is-running.is-candidate .playground-node[data-play-node="consumer"] .node-dot { background: var(--fail); box-shadow: 0 0 0 4px var(--tint-fail) }
+.playground.is-running.is-baseline .playground-node-impact .node-dot { background: var(--pass); box-shadow: 0 0 0 4px var(--tint-pass) }
+.playground.is-running.is-candidate .playground-node-impact .node-dot { background: var(--fail); box-shadow: 0 0 0 4px var(--tint-fail) }
 
 .playground-edge { position: relative; height: 44px }
 .playground-edge .rail {
@@ -1125,7 +1162,8 @@ h1 { margin-bottom: var(--s4) }
   background: var(--pass);
   animation: rail-resolve 900ms var(--ease-io) forwards;
 }
-.playground.is-running.is-baseline .playground-node:last-child { border-color: var(--pass); background: var(--tint-pass) }
+.playground.is-running.is-baseline .playground-node:not([data-play-node="producer"]) { border-color: var(--pass); background: var(--tint-pass) }
+.playground.is-running.is-baseline .playground-edge-impact .rail { background: var(--pass) }
 .playground.is-running.is-candidate .playground-pulse {
   background: var(--fail);
   box-shadow: 0 0 0 4px var(--tint-fail);
@@ -1138,7 +1176,15 @@ h1 { margin-bottom: var(--s4) }
   opacity: 1;
   transition: opacity var(--t-fast) var(--ease) 640ms;
 }
-.playground.is-running.is-candidate .playground-node:last-child { border-color: var(--fail); background: var(--tint-fail) }
+.playground.is-running.is-candidate .playground-node:not([data-play-node="producer"]) { border-color: var(--edge-fail); background: var(--tint-fail) }
+.playground.is-running.is-candidate .playground-edge-impact .rail {
+  background: repeating-linear-gradient(90deg, var(--fail) 0 6px, transparent 6px 13px);
+  opacity: .78;
+  animation: impact-arrive var(--t-mid) var(--ease) backwards;
+}
+.playground.is-running.is-candidate .playground-edge-impact:nth-of-type(4) .rail { animation-delay: 720ms }
+.playground.is-running.is-candidate .playground-edge-impact:nth-of-type(6) .rail { animation-delay: 880ms }
+@keyframes impact-arrive { from { opacity: 0 } }
 
 @keyframes play-travel-full {
   from { transform: translateX(-5.5px) }
@@ -1165,6 +1211,30 @@ h1 { margin-bottom: var(--s4) }
 .playground-result strong.pass { color: var(--pass-text) }
 .playground-result strong.fail { color: var(--fail-text) }
 .playground-result span { color: var(--muted); font-size: .875rem }
+
+.playground-witness {
+  margin: 0 var(--s2) var(--s2);
+  overflow: hidden;
+  border: 1px solid var(--edge-fail);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: inset 4px 0 0 var(--fail);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--t-mid) var(--ease), transform var(--t-mid) var(--ease);
+}
+.playground-witness[hidden] { display: none }
+.playground-witness.is-open { opacity: 1; transform: none }
+.playground-witness > div { display: flex; flex-direction: column; gap: var(--s1); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--border) }
+.playground-witness > div > span { color: var(--fail-text); font: 650 .6875rem var(--mono); letter-spacing: .1em; text-transform: uppercase }
+.playground-witness > div > strong { font-size: 1rem; font-weight: 600 }
+.playground-witness dl { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 }
+.playground-witness dl > div { min-width: 0; padding: var(--s2) var(--s3); border-right: 1px solid var(--border) }
+.playground-witness dl > div:last-child { border-right: 0 }
+.playground-witness dt { color: var(--subtle); font: 650 .6875rem var(--mono); letter-spacing: .08em; text-transform: uppercase }
+.playground-witness dd { margin: var(--s1) 0 0; overflow-wrap: anywhere; color: var(--text); font-size: .8125rem }
+.playground-witness dl > div:nth-child(1) dd { color: var(--pass-text) }
+.playground-witness dl > div:nth-child(2) dd { color: var(--fail-text) }
 
 /* ====================================================== bug section === */
 
@@ -1532,59 +1602,81 @@ h1 { margin-bottom: var(--s4) }
 }
 .mock-repair { margin-top: auto; background: var(--tint-pulse) }
 
-/* ========================================================= roadmap === */
+/* =========================================================== proof === */
 
-/* Planned work is drawn as an edge that has not been connected yet: a hollow
-   node on a dashed stub. Hovering completes it. Nothing here is shipped, and
-   the graph says so before the label does. */
-.roadmap-rail { border-top: 1px solid var(--border) }
-.roadmap-rail a {
+.proof-section > .shell {
+  display: grid;
+  grid-template-columns: minmax(250px, .55fr) minmax(0, 1.45fr);
+  gap: var(--s8);
+}
+.proof-intro h2 { max-width: 10ch }
+.proof-intro > p:last-child { max-width: 34ch; margin-top: var(--s3); color: var(--muted) }
+.proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  border-top: 1px solid var(--border-strong);
+}
+.proof-grid > div { min-width: 0; padding: var(--s4) var(--s3); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border) }
+.proof-grid > div:nth-child(3n) { border-right: 0 }
+.proof-grid dt { color: var(--subtle); font: 650 .6875rem var(--mono); letter-spacing: .1em; text-transform: uppercase }
+.proof-grid dd { margin: var(--s2) 0 0 }
+.proof-grid dd strong { display: block; overflow-wrap: anywhere; color: var(--text); font-size: clamp(1.4rem, 2.6vw, 2.25rem); font-weight: 620; letter-spacing: -.035em }
+.proof-grid small { display: block; margin-top: var(--s1); color: var(--muted); font-size: .75rem }
+.proof-note { grid-column: 2; color: var(--muted); font-size: .8125rem }
+.proof-note a { color: var(--text); text-decoration: underline; text-decoration-color: var(--edge-pulse); text-underline-offset: 4px }
+
+/* ===================================================== limitations === */
+
+.limitations-section {
+  margin-top: var(--s12);
+  border-block: 1px solid var(--border);
+  background: var(--bg-sunk);
+}
+.limitations-section > .shell {
+  display: grid;
+  grid-template-columns: minmax(260px, .7fr) minmax(0, 1.3fr);
+  gap: var(--s8);
+  padding-bottom: var(--s10);
+}
+.limitations-lead > span { color: var(--unknown-text); font: 650 .6875rem var(--mono); letter-spacing: .13em; text-transform: uppercase }
+.limitations-lead h2 { max-width: 11ch; margin-top: var(--s3) }
+.limitations-lead p { margin-top: var(--s3); color: var(--muted) }
+.limitations-list { padding: 0; border-top: 1px solid var(--border-strong); list-style: none }
+.limitations-list li { display: grid; grid-template-columns: 48px 1fr; gap: var(--s2); padding: var(--s3) 0; border-bottom: 1px solid var(--border) }
+.limitations-list span { color: var(--unknown-text); font: .75rem var(--mono) }
+.limitations-list p { max-width: 60ch; color: var(--text); font-size: 1rem }
+.limitations-link { grid-column: 2; justify-self: start; display: inline-flex; gap: var(--s1); min-height: 44px; align-items: center; color: var(--muted); font-size: .875rem }
+.limitations-link:hover { color: var(--text) }
+
+/* ==================================================== contribution === */
+
+.contribution-section > .shell {
+  display: grid;
+  grid-template-columns: minmax(260px, .62fr) minmax(0, 1.38fr);
+  gap: var(--s8);
+}
+.contribution-lead h2 { max-width: 10ch }
+.contribution-lead > p:last-child { max-width: 34ch; margin-top: var(--s3); color: var(--muted) }
+.contribution-paths { border-top: 1px solid var(--border-strong) }
+.contribution-paths a {
   position: relative;
   display: grid;
-  grid-template-columns: 44px 64px 1fr auto;
+  grid-template-columns: 110px minmax(0, 1fr) minmax(190px, .72fr);
+  gap: var(--s3);
   align-items: center;
-  gap: var(--s2);
-  min-height: 84px;
-  padding: 0 var(--s2) 0 0;
+  min-height: 116px;
+  padding: var(--s3) var(--s6) var(--s3) 0;
   border-bottom: 1px solid var(--border);
-  transition: background var(--t-fast) var(--ease);
 }
-/* The unconnected stub. */
-.roadmap-rail a::before {
-  content: "";
-  position: absolute;
-  left: 71px; top: 50%;
-  width: 53px; height: 0;
-  margin-top: -1px;
-  border-top: 2px dashed var(--edge);
-  transition: border-color var(--t-mid) var(--ease);
-}
-/* The open node it fails to reach. */
-.roadmap-rail a::after {
-  content: "";
-  position: absolute;
-  left: 60px; top: 50%;
-  width: 9px; height: 9px;
-  margin-top: -4.5px;
-  border: 1.5px solid var(--edge);
-  border-radius: 50%;
-  background: var(--bg);
-  transition: border-color var(--t-mid) var(--ease), background var(--t-mid) var(--ease);
-}
-.roadmap-rail a:hover, .roadmap-rail a:focus-visible { background: var(--surface) }
-.roadmap-rail a:hover::before, .roadmap-rail a:focus-visible::before {
-  border-top-style: solid;
-  border-top-color: var(--unknown);
-}
-.roadmap-rail a:hover::after, .roadmap-rail a:focus-visible::after {
-  border-color: var(--unknown);
-  background: var(--unknown);
-}
-.roadmap-rail strong { grid-column: 3 }
-.roadmap-rail span { grid-column: 1; padding-left: var(--s2); color: var(--subtle); font: .75rem var(--mono) }
-.roadmap-rail small { color: var(--subtle); font: .75rem var(--mono) }
-.roadmap-rail strong { font-size: 1.0625rem; font-weight: 600; letter-spacing: -.018em }
-.roadmap-rail small { color: var(--unknown-text); letter-spacing: .08em; text-transform: uppercase }
+.contribution-paths a::after { content: "↗"; position: absolute; right: var(--s1); color: var(--subtle); transition: color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease) }
+.contribution-paths a:hover::after, .contribution-paths a:focus-visible::after { color: var(--pulse); transform: translate(2px, -2px) }
+.contribution-paths span { color: var(--pulse); font: 650 .6875rem var(--mono); letter-spacing: .1em; text-transform: uppercase }
+.contribution-paths strong { font-size: 1.125rem; font-weight: 600; line-height: 1.35 }
+.contribution-paths small { color: var(--muted); font-size: .8125rem; line-height: 1.55 }
+.contribution-footer { grid-column: 2; display: flex; flex-wrap: wrap; gap: var(--s4) }
+.contribution-footer a { min-height: 44px; display: inline-flex; align-items: center; color: var(--muted); font-size: .875rem; text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 4px }
+.contribution-footer a:hover { color: var(--text) }
 
 /* ============================================================= cta === */
 
@@ -1822,6 +1914,18 @@ body.modal-open { overflow: hidden }
   .hero { padding: var(--s8) 0 var(--s7) }
   .section-heading { flex-direction: column; align-items: flex-start; gap: var(--s3); margin-bottom: var(--s6) }
   .section-heading > p { flex: 1 1 auto }
+  .bug-heading { grid-template-columns: 1fr }
+  .bug-heading > p { margin-top: 0 }
+  .terminal-section > .shell,
+  .proof-section > .shell,
+  .limitations-section > .shell,
+  .contribution-section > .shell { grid-template-columns: 1fr; gap: var(--s6) }
+  .terminal-section .section-heading { margin-top: 0 }
+  .proof-note,
+  .limitations-link,
+  .contribution-footer { grid-column: 1 }
+  .contribution-paths a { grid-template-columns: 92px minmax(0, 1fr) }
+  .contribution-paths small { grid-column: 2 }
   .meaning-diff { grid-template-columns: 1fr; gap: var(--s6) }
   .contract-cut { width: 3px; height: 56px; margin-inline: auto }
   .cut-rail { width: 3px; height: 100%; background: linear-gradient(180deg, var(--pulse) 0 42%, transparent 42% 58%, var(--edge) 58%) }
@@ -1876,6 +1980,17 @@ body.modal-open { overflow: hidden }
   .section > .shell::before { top: var(--s5); height: calc(var(--s9) - var(--s5) - 3px) }
   .section-heading { margin-bottom: var(--s5) }
   .section-heading > p { font-size: .9375rem }
+  .bug-heading h2 { font-size: clamp(2.6rem, 14vw, 4.25rem) }
+  .bug-heading > p { padding-left: var(--s2) }
+  .proof-grid { grid-template-columns: 1fr 1fr }
+  .proof-grid > div:nth-child(3n) { border-right: 1px solid var(--border) }
+  .proof-grid > div:nth-child(2n) { border-right: 0 }
+  .proof-grid > div { padding: var(--s3) var(--s2) }
+  .proof-grid dd strong { font-size: 1.45rem }
+  .limitations-list li { grid-template-columns: 36px 1fr }
+  .contribution-paths a { grid-template-columns: 1fr; gap: var(--s1); padding-right: var(--s5) }
+  .contribution-paths small { grid-column: 1 }
+  .contribution-footer { gap: var(--s2) var(--s4) }
 
   .pulse-scene { margin-top: var(--s6); border-radius: var(--radius) }
   .scene-toolbar { flex-direction: column; align-items: stretch; gap: var(--s2); padding: var(--s2) }
@@ -1953,11 +2068,17 @@ body.modal-open { overflow: hidden }
   .playground.is-running.is-candidate .playground-pulse { animation-name: play-travel-half-v }
   .playground.is-running.is-baseline .playground-edge .rail-live { animation-name: rail-resolve-v }
   .playground.is-running.is-candidate .playground-edge .rail-live { animation-name: rail-half-v }
+  .playground.is-running.is-candidate .playground-edge-impact .rail { background: repeating-linear-gradient(180deg, var(--fail) 0 6px, transparent 6px 13px) }
   @keyframes play-travel-full-v { from { transform: translateY(0) } to { transform: translateY(calc(var(--edge-h, 96px) - 11px)) } }
   @keyframes play-travel-half-v { from { transform: translateY(0) } to { transform: translateY(calc(var(--edge-h, 64px) * .46)) } }
   @keyframes rail-resolve-v { from { transform: scaleY(0) } to { transform: scaleY(1) } }
   @keyframes rail-half-v    { from { transform: scaleY(0) } to { transform: scaleY(var(--break-stop)) } }
   .playground-result { padding: var(--s3) }
+  .playground-witness > div { padding: var(--s3) }
+  .playground-witness dl { grid-template-columns: 1fr 1fr }
+  .playground-witness dl > div { border-bottom: 1px solid var(--border) }
+  .playground-witness dl > div:nth-child(2) { border-right: 0 }
+  .playground-witness dl > div:nth-last-child(-n+2) { border-bottom: 0 }
 
   .method-rail { grid-template-columns: 1fr }
   .method-rail li { min-height: 0; border-right: 0; border-bottom: 1px solid var(--border) }
@@ -1981,12 +2102,6 @@ body.modal-open { overflow: hidden }
   .yaml, .terminal pre, .payload pre { font-size: .75rem }
   .arch-frame { padding: var(--s2) }
 
-  .roadmap-rail a { grid-template-columns: 36px 22px 1fr; gap: var(--s1); min-height: 0; padding: var(--s2) var(--s1) var(--s2) 0 }
-  .roadmap-rail span { padding-left: var(--s1) }
-  .roadmap-rail a::after { left: 36px }
-  .roadmap-rail a::before { left: 47px; width: 15px }
-  .roadmap-rail small { grid-column: 3; grid-row: 2 }
-
   .final-cta { padding: var(--s6) var(--s3); border-radius: var(--radius) }
   .cta-mark { width: 120px }
 
@@ -2006,6 +2121,13 @@ body.modal-open { overflow: hidden }
   .copy-button { width: 100%; min-height: 40px }
 
   .footer-inner { flex-direction: column; align-items: flex-start; gap: var(--s3); padding: var(--s5) 0 }
+}
+
+@media (max-width: 360px) {
+  .proof-grid { grid-template-columns: 1fr }
+  .proof-grid > div,
+  .proof-grid > div:nth-child(2n),
+  .proof-grid > div:nth-child(3n) { border-right: 0 }
 }
 
 /* ================================================= reduced motion === */

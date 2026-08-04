@@ -1,13 +1,10 @@
 /* =============================================================================
-   GraphABI — the ambient field
+   GraphABI: the ambient field
    -----------------------------------------------------------------------------
    A live force-directed graph: nodes drift under repulsion and edge springs,
-   the topology rewires itself, and semantic pulses travel the edges. Most
-   resolve. Some stop mid-edge, cut, and take their downstream path with them.
-
-   This is the world before GraphABI: meaning moving through a graph, breaking
-   quietly, healing, and nobody watching. Every product surface on the page is
-   the deliberate opposite - deterministic, explained, and stopped.
+   the topology rewires itself, and neutral signals travel the edges. The field
+   is possibility, not evidence. It never renders a pass, break, blast radius,
+   witness, or other product conclusion.
 
    Canvas 2D, no dependencies. Three.js would buy nothing here and cost ~600 KB
    against a documented performance budget; the interesting work is the
@@ -23,6 +20,13 @@
   const ctx = canvas.getContext("2d", { alpha: true });
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
   const dark = window.matchMedia("(prefers-color-scheme: dark)");
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const constrained = Boolean(
+    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
+    (connection && connection.saveData)
+  );
 
   /* ---------------------------------------------------------- palette --- */
 
@@ -38,8 +42,6 @@
     };
     C.edge = rgb("--edge", "#556070");
     C.pulse = rgb("--pulse", "#A78BFA");
-    C.fail = rgb("--fail", "#EF4444");
-    C.pass = rgb("--pass", "#22C55E");
     C.isDark = dark.matches;
     // A trace of violet in the mesh: inactive structure still belongs to the
     // same system as the meaning flowing over it.
@@ -55,12 +57,21 @@
   let pulses = [];
   let obstacles = [];
   let scrollY = window.scrollY || 0;
-  let pointerX = -9999, pointerY = -9999, pointerOn = 0;
+  let pointerX = -9999, pointerY = -9999;
+  let pointerVX = 0, pointerVY = 0, pointerSpeed = 0, pointerEnergy = 0;
+  let pointerLastX = 0, pointerLastY = 0, pointerLastAt = 0;
+  let pointerFine = 0, pointerTouch = 0, touchScroll = 0;
+  let touchStartX = 0, touchStartY = 0;
+  let touchReleaseTimer = 0;
   let raf = 0;
   let running = false;
   let last = 0;
+  let lastFrameAt = 0;
   let mutateAt = 0;
   let spawnAt = 0;
+  let constellationAt = 0;
+  let splitAt = 0;
+  let topologyMode = 0;
 
   const rand = (a, b) => a + Math.random() * (b - a);
   const pick = (arr) => arr[(Math.random() * arr.length) | 0];
@@ -74,20 +85,21 @@
 
   const degree = (i) => edges.reduce((n, e) => n + (e.a === i || e.b === i ? 1 : 0), 0);
 
-  const addEdge = (a, b, life) => {
+  const addEdge = (a, b, life, expiresAt) => {
     edges.push({
       a, b,
       // A fixed per-edge bow, so curvature is stable while the nodes move.
       bow: rand(-0.3, 0.3),
       life: life === undefined ? 1 : life,
       target: 1,
-      blast: 0,
+      expiresAt: expiresAt || 0,
     });
   };
 
   const build = () => {
     const area = W * H;
-    const count = Math.max(18, Math.min(78, Math.round(area / 18500)));
+    const budget = constrained ? 0.62 : 1;
+    const count = Math.max(16, Math.min(constrained ? 38 : 64, Math.round(area / 23000 * budget)));
     nodes = [];
     edges = [];
     pulses = [];
@@ -121,10 +133,10 @@
         .map((n, j) => ({ j, d: Math.hypot(n.x - nodes[i].x, n.y - nodes[i].y) }))
         .filter((o) => o.j !== i)
         .sort((p, q) => p.d - q.d)
-        .slice(0, 3);
+        .slice(0, 2);
       for (const o of near) {
-        if (degree(i) >= 3 || degree(o.j) >= 4) continue;
-        if (!connected(i, o.j) && Math.random() < 0.9) addEdge(i, o.j);
+        if (degree(i) >= 3 || degree(o.j) >= 3) continue;
+        if (!connected(i, o.j) && Math.random() < 0.86) addEdge(i, o.j);
       }
     }
   };
@@ -159,6 +171,8 @@
 
   const step = (dt, t) => {
     const n = nodes.length;
+    pointerEnergy += ((pointerFine || pointerTouch ? 1 : 0) - pointerEnergy) * Math.min(1, dt * 0.09);
+    pointerSpeed *= Math.pow(0.89, dt);
 
     // Node-node repulsion. O(n^2) is genuinely cheaper than a spatial index
     // at this scale, and the constant factor is what matters at 60 fps.
@@ -207,16 +221,49 @@
         else p.vy += push * (1 - down / o.h);
       }
 
-      // The graph parts around the pointer. Near nodes move more, which is
-      // what sells the depth.
-      if (pointerOn) {
+      // A slow pointer gathers a local constellation around a small ring. A
+      // fast pointer opens a corridor through the topology. Both forces fade
+      // after release so the graph returns to its spring equilibrium.
+      if (pointerEnergy > 0.01) {
         const dx = p.x - pointerX, dy = p.y - pointerY;
         const d2 = dx * dx + dy * dy;
-        if (d2 < 30000 && d2 > 1) {
+        if (d2 < 52900 && d2 > 1) {
           const d = Math.sqrt(d2);
-          const f = (1 - d / 173) * (0.5 + p.z) * 1.9 / d;
-          p.vx += dx * f; p.vy += dy * f;
+          const near = 1 - d / 230;
+          const fast = Math.min(1, Math.max(0, (pointerSpeed - 0.38) / 0.92));
+          const slow = 1 - fast;
+          const ring = 34 + p.z * 30;
+          const radial = (d - ring) * 0.0048 * near * slow * pointerEnergy;
+          p.vx -= dx / d * radial;
+          p.vy -= dy / d * radial;
+
+          const orbit = Math.sin(p.px + p.py) * 0.045 * near * slow * pointerEnergy;
+          p.vx += -dy / d * orbit;
+          p.vy += dx / d * orbit;
+
+          if (fast > 0) {
+            const speed = Math.hypot(pointerVX, pointerVY) || 1;
+            const ux = pointerVX / speed, uy = pointerVY / speed;
+            const side = Math.sign(ux * dy - uy * dx) || (i % 2 ? 1 : -1);
+            const split = near * fast * pointerEnergy * (0.72 + p.z * 0.7);
+            p.vx += -uy * side * split;
+            p.vy += ux * side * split;
+          }
         }
+      }
+
+      // Section traversal changes equilibrium without turning the field into
+      // a scroll animation. Modes alternate between open space, loose
+      // subgraphs, and threaded layers.
+      if (topologyMode === 1) {
+        const anchor = i % 3;
+        const ax = W * (0.22 + anchor * 0.28);
+        const ay = H * (anchor === 1 ? 0.6 : 0.34);
+        p.vx += (ax - p.x) * 0.000055;
+        p.vy += (ay - p.y) * 0.000055;
+      } else if (topologyMode === 2) {
+        const lane = H * (0.24 + (i % 4) * 0.17);
+        p.vy += (lane - p.y) * 0.00007;
       }
 
       // Slow independent wander, so a settled graph still breathes.
@@ -237,6 +284,36 @@
       if (p.x > W - m) p.vx -= (p.x - (W - m)) * 0.02;
       if (p.y < m) p.vy += (m - p.y) * 0.02;
       if (p.y > H - m) p.vy -= (p.y - (H - m)) * 0.02;
+    }
+
+    // Slow exploration creates short-lived local edges. Fast traversal may
+    // retire one nearby edge, producing a brief corridor that settles calmly.
+    if (pointerEnergy > 0.35 && pointerSpeed < 0.38 && t > constellationAt) {
+      constellationAt = t + 0.46;
+      const near = nodes
+        .map((node, i) => ({ i, d: Math.hypot(node.x - pointerX, node.y - pointerY) }))
+        .filter((item) => item.d < 170)
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 6);
+      for (let i = 0; i < near.length - 1; i++) {
+        const a = near[i].i, b = near[i + 1].i;
+        if (!connected(a, b) && degree(a) < 5 && degree(b) < 5) {
+          addEdge(a, b, 0, t + 1.6);
+          break;
+        }
+      }
+    }
+
+    if (pointerEnergy > 0.4 && pointerSpeed > 0.9 && t > splitAt) {
+      splitAt = t + 0.34;
+      let closest = null, closestD = 150;
+      for (const edge of edges) {
+        if (edge.target === 0 || edge.expiresAt) continue;
+        const a = nodes[edge.a], b = nodes[edge.b];
+        const d = Math.hypot((a.x + b.x) * 0.5 - pointerX, (a.y + b.y) * 0.5 - pointerY);
+        if (d < closestD) { closest = edge; closestD = d; }
+      }
+      if (closest) closest.target = 0;
     }
 
     // Topology mutation: retire an overstretched edge, grow a plausible one.
@@ -263,8 +340,8 @@
 
     for (let k = edges.length - 1; k >= 0; k--) {
       const e = edges[k];
+      if (e.expiresAt && t > e.expiresAt) e.target = 0;
       e.life += (e.target - e.life) * Math.min(1, dt * 0.9);
-      if (e.blast > 0) e.blast = Math.max(0, e.blast - dt * 0.55);
       if (e.target === 0 && e.life < 0.01) edges.splice(k, 1);
     }
   };
@@ -287,31 +364,21 @@
     }
     if (path.length < 2) return;
 
-    // Roughly one in four never arrives.
-    const breaking = Math.random() < 0.26;
     pulses.push({
       path, i: 0, t: 0,
       speed: rand(0.55, 0.85),
-      breaking,
-      breakAt: breaking ? 1 + ((Math.random() * (path.length - 1)) | 0) : -1,
-      broke: 0,
       done: 0,
     });
   };
 
   const stepPulses = (dt, t) => {
-    if (t > spawnAt && pulses.length < 4) {
+    if (t > spawnAt && pulses.length < (constrained ? 2 : 4)) {
       spawnAt = t + rand(1.1, 2.4);
       spawn();
     }
     for (let k = pulses.length - 1; k >= 0; k--) {
       const p = pulses[k];
 
-      if (p.broke > 0) {
-        p.broke += dt;
-        if (p.broke > 2.2) pulses.splice(k, 1);
-        continue;
-      }
       if (p.done > 0) {
         p.done += dt;
         if (p.done > 0.9) pulses.splice(k, 1);
@@ -319,17 +386,6 @@
       }
 
       p.t += p.speed * dt;
-
-      if (p.i === p.breakAt && p.t >= 0.5) {
-        p.t = 0.5;
-        p.broke = 0.001;
-        // Everything leaving the node it never reached is now suspect.
-        const hop = p.path[p.i];
-        for (const e of edges) {
-          if (e.a === hop.to || e.b === hop.to) e.blast = 1;
-        }
-        continue;
-      }
 
       if (p.t >= 1) {
         p.t = 0;
@@ -373,15 +429,8 @@
       ctx.moveTo(a.x, a.y);
       ctx.quadraticCurveTo(c.x, c.y, b.x, b.y);
 
-      if (e.blast > 0.01) {
-        ctx.setLineDash([3, 7]);
-        ctx.strokeStyle = rgba(C.fail, 0.30 * e.blast * e.life);
-        ctx.lineWidth = 1.1;
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
       const az = (a.z + b.z) / 2;
-      ctx.strokeStyle = rgba(C.mesh, edgeA * e.life * (1 - e.blast * 0.5) * (0.45 + az * 0.75));
+      ctx.strokeStyle = rgba(C.mesh, edgeA * e.life * (0.45 + az * 0.75));
       ctx.lineWidth = 0.6 + az * 0.8;
       ctx.stroke();
     }
@@ -400,9 +449,8 @@
       const c = control(a, b, hop.edge.bow);
       const head = at(a, c, b, p.t);
 
-      const broke = p.broke > 0;
-      const col = broke ? C.fail : C.pulse;
-      const fade = broke ? Math.max(0, 1 - (p.broke - 1.2) / 1.0) : 1;
+      const col = C.pulse;
+      const fade = p.done > 0 ? Math.max(0, 1 - p.done / 0.9) : 1;
 
       // Trail: a short sampled span of the same curve behind the head.
       const t0 = Math.max(0, p.t - 0.34);
@@ -415,41 +463,14 @@
       ctx.lineWidth = 1.6;
       ctx.stroke();
 
-      if (broke) {
-        // The mark: the same interrupted edge the logo is built from.
-        const ang = Math.atan2(b.y - a.y, b.x - a.x);
-        const grow = Math.min(1, p.broke * 7);
-        ctx.save();
-        ctx.translate(head.x, head.y);
-        ctx.rotate(ang);
-        ctx.strokeStyle = rgba(C.fail, 0.85 * fade);
-        ctx.lineWidth = 1.5;
-        for (const sy of [-1, 1]) {
-          ctx.beginPath();
-          ctx.moveTo(-3.5 * grow, sy * 4.5 * grow);
-          ctx.lineTo(3.5 * grow, sy * 1 * grow);
-          ctx.stroke();
-        }
-        ctx.restore();
-      } else {
-        ctx.beginPath();
-        ctx.arc(head.x, head.y, 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = rgba(col, 0.95 * fade);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(head.x, head.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = rgba(col, 0.14 * fade);
-        ctx.fill();
-      }
-
-      // Arrival: the consumer node acknowledges a pulse that made it.
-      if (p.done > 0) {
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, 3 + p.done * 9, 0, Math.PI * 2);
-        ctx.strokeStyle = rgba(C.pass, Math.max(0, 0.5 - p.done * 0.6));
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-      }
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, 2.4, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(col, 0.9 * fade);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(col, 0.12 * fade);
+      ctx.fill();
     }
   };
 
@@ -458,6 +479,8 @@
   const frame = (now) => {
     if (!running) return;
     raf = requestAnimationFrame(frame);
+    if (constrained && now - lastFrameAt < 30) return;
+    lastFrameAt = now;
     if (!last) last = now;
     // Clamp dt so a backgrounded tab never resumes with an exploded step.
     const dt = Math.min(0.05, (now - last) / 1000);
@@ -473,6 +496,7 @@
     if (running || reduced.matches) return;
     running = true;
     last = 0;
+    lastFrameAt = 0;
     raf = requestAnimationFrame(frame);
   };
 
@@ -484,7 +508,7 @@
   /* ------------------------------------------------------------ size --- */
 
   const resize = () => {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(constrained ? 1.25 : 2, window.devicePixelRatio || 1);
     W = window.innerWidth;
     H = window.innerHeight;
     canvas.width = Math.round(W * dpr);
@@ -529,14 +553,67 @@
 
   window.addEventListener("scroll", () => { scrollY = window.scrollY; }, { passive: true });
 
-  // Coarse pointers get no cursor force: there is nothing hovering to react to,
-  // and a touch would yank the graph around under the user's own finger.
-  if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  const updatePointer = (event, isFine) => {
+    const now = performance.now();
+    const elapsed = Math.max(8, now - pointerLastAt);
+    const vx = (event.clientX - pointerLastX) / elapsed;
+    const vy = (event.clientY - pointerLastY) / elapsed;
+    pointerVX += (vx - pointerVX) * 0.45;
+    pointerVY += (vy - pointerVY) * 0.45;
+    pointerSpeed += (Math.hypot(vx, vy) - pointerSpeed) * 0.35;
+    pointerX = event.clientX;
+    pointerY = event.clientY;
+    pointerLastX = event.clientX;
+    pointerLastY = event.clientY;
+    pointerLastAt = now;
+    if (isFine) pointerFine = 1;
+  };
+
+  if (finePointer.matches) {
     window.addEventListener("pointermove", (event) => {
-      pointerX = event.clientX; pointerY = event.clientY; pointerOn = 1;
+      updatePointer(event, true);
     }, { passive: true });
-    window.addEventListener("pointerleave", () => { pointerOn = 0; }, { passive: true });
-    document.addEventListener("mouseleave", () => { pointerOn = 0; }, { passive: true });
+    window.addEventListener("pointerleave", () => { pointerFine = 0; }, { passive: true });
+    document.addEventListener("mouseleave", () => { pointerFine = 0; }, { passive: true });
+  }
+
+  // Touch influence is short and passive. It never prevents default, never
+  // starts over a control, and gives way as soon as a vertical scroll begins.
+  window.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "touch" || event.target.closest("a,button,input,select,textarea,summary,[role='button']")) return;
+    touchStartX = event.clientX;
+    touchStartY = event.clientY;
+    clearTimeout(touchReleaseTimer);
+    touchScroll = 0;
+    pointerTouch = 1;
+    pointerSpeed = 0;
+    updatePointer(event, false);
+  }, { passive: true });
+  window.addEventListener("pointermove", (event) => {
+    if (!pointerTouch || event.pointerType !== "touch") return;
+    const dx = event.clientX - touchStartX;
+    const dy = event.clientY - touchStartY;
+    if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) {
+      touchScroll = 1;
+      pointerTouch = 0;
+      return;
+    }
+    if (!touchScroll && Math.hypot(dx, dy) < 84) updatePointer(event, false);
+  }, { passive: true });
+  const releaseTouch = () => {
+    if (touchScroll) { pointerTouch = 0; touchScroll = 0; return; }
+    touchReleaseTimer = setTimeout(() => { pointerTouch = 0; }, 420);
+  };
+  window.addEventListener("pointerup", releaseTouch, { passive: true });
+  window.addEventListener("pointercancel", releaseTouch, { passive: true });
+
+  if ("IntersectionObserver" in window) {
+    const sections = [...document.querySelectorAll("main > section")];
+    const sectionObserver = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) topologyMode = Math.abs(sections.indexOf(visible.target)) % 3;
+    }, { rootMargin: "-28% 0px -28% 0px", threshold: [0.05, 0.35, 0.7] });
+    sections.forEach((section) => sectionObserver.observe(section));
   }
   window.addEventListener("load", measure);
   // Text reflowing after a late font swap moves every obstacle the field
