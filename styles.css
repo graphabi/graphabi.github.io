@@ -1418,6 +1418,7 @@ h1 { margin-bottom: var(--s4) }
 .edge-link {
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
   gap: 6px;
   font-size: .8125rem;
   font-weight: 600;
@@ -1889,7 +1890,12 @@ body.modal-open { overflow: hidden }
 }
 .footer-brand { display: flex; align-items: center; gap: var(--s1) }
 .footer-inner nav { display: flex; flex-wrap: wrap; gap: var(--s3) }
-.footer-inner nav a { transition: color var(--t-fast) var(--ease) }
+.footer-inner nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  transition: color var(--t-fast) var(--ease);
+}
 .footer-inner nav a:hover { color: var(--text) }
 
 /* ====================================================== responsive === */
