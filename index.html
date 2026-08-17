@@ -284,8 +284,8 @@ Affected downstream nodes: verifier, decision_maker, publisher
           <ol class="pipeline">
             <li class="stage stage-outside">
               <span class="stage-tag">Flow</span>
-              <strong>Adapters</strong>
-              <small>LangGraph + OpenAI Agents</small>
+              <strong>Trace inputs</strong>
+              <small>LangGraph · OpenAI Agents · local OTLP</small>
             </li>
             <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>TraceBundle 0.2</em></li>
             <li class="stage">
@@ -305,7 +305,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
               <strong>Impact</strong>
               <small>NetworkX paths</small>
             </li>
-            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>CompatibilityReport 0.1</em></li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>CompatibilityReport 0.3</em></li>
             <li class="stage stage-explain">
               <span class="stage-tag">Explain</span>
               <strong>Reports</strong>
@@ -321,25 +321,27 @@ Affected downstream nodes: verifier, decision_maker, publisher
 
     <section class="section report-section" data-rail-node="Report" aria-labelledby="report-title">
       <div class="shell">
-        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>A report that explains causality</p><h2 id="report-title">Not a score.<br>A repairable witness.</h2></div><p>Machine-readable JSON and a self-contained HTML report come from one redacted report model. The report works offline.</p></div>
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>A report that explains causality</p><h2 id="report-title">Not a score.<br>A repairable witness.</h2></div><p>Machine-readable JSON and a self-contained HTML report come from one redacted report model. Coverage is explicit and never presented as correctness.</p></div>
         <div class="report-split">
           <div class="report-pane">
-            <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>report.json</strong><span class="pane-note">machine-readable</span></div>
+            <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>report.json</strong><span class="pane-note">machine-readable excerpt</span></div>
             <pre class="yaml" tabindex="0" role="region" aria-label="Report JSON; scroll if needed"><code>{
-  <span class="key">"structural"</span>: <span class="string">"pass"</span>,
-  <span class="key">"semantic"</span>: <span class="sev">"breaking"</span>,
-  <span class="key">"first_breaking_edge"</span>: {
-    <span class="key">"producer"</span>: <span class="string">"researcher"</span>,
-    <span class="key">"consumer"</span>: <span class="string">"verifier"</span>,
-    <span class="key">"contract"</span>: <span class="string">"verified_requires_opened_supporting_source"</span>
-  },
-  <span class="key">"witness"</span>: {
-    <span class="key">"run"</span>: <span class="string">"candidate-003"</span>,
-    <span class="key">"expected"</span>: <span class="string">"opened_sources_count &gt; 0"</span>,
-    <span class="key">"observed"</span>: <span class="num">0</span>
-  },
-  <span class="key">"affected"</span>: [<span class="string">"verifier"</span>, <span class="string">"decision_maker"</span>, <span class="string">"publisher"</span>],
-  <span class="key">"repair_before"</span>: <span class="string">"verifier"</span>
+  <span class="key">"schema_version"</span>: <span class="string">"0.3"</span>,
+  <span class="key">"structural"</span>: { <span class="key">"status"</span>: <span class="string">"PASS"</span> },
+  <span class="key">"semantic"</span>: {
+    <span class="key">"status"</span>: <span class="sev">"FAIL"</span>,
+    <span class="key">"first_breaking_edge"</span>: <span class="string">"researcher_to_verifier"</span>,
+    <span class="key">"coverage"</span>: { <span class="key">"summary"</span>: {
+      <span class="key">"total_graph_edges"</span>: <span class="num">3</span>,
+      <span class="key">"contracted_and_observed"</span>: <span class="num">3</span>,
+      <span class="key">"observed_contract_coverage_percent"</span>: <span class="num">100.0</span>,
+      <span class="key">"coverage_is_correctness"</span>: <span class="string">false</span>
+    } },
+    <span class="key">"findings"</span>: [{
+      <span class="key">"contract_id"</span>: <span class="string">"research_demo:researcher_to_verifier:verified_requires_opened_supporting_source"</span>,
+      <span class="key">"affected_downstream_nodes"</span>: [<span class="string">"verifier"</span>, <span class="string">"decision_maker"</span>, <span class="string">"publisher"</span>]
+    }]
+  }
 }</code></pre>
           </div>
           <div class="report-pane">
@@ -376,14 +378,14 @@ Affected downstream nodes: verifier, decision_maker, publisher
       <div class="shell">
         <div class="proof-intro"><p class="eyebrow"><i aria-hidden="true"></i>Measured technical proof</p><h2 id="proof-title">Small surface.<br>Serious checks.</h2><p>Current branch measurements, linked to the source that enforces them.</p></div>
         <dl class="proof-grid">
-          <div><dt>Tests</dt><dd><strong data-proof="tests">172</strong><small>passing locally</small></dd></div>
-          <div><dt>Coverage</dt><dd><strong data-proof="coverage">91.35%</strong><small>90% CI floor</small></dd></div>
+          <div><dt>Tests</dt><dd><strong data-proof="tests">194</strong><small>passing locally</small></dd></div>
+          <div><dt>Coverage</dt><dd><strong data-proof="coverage">91.37%</strong><small>90% CI floor</small></dd></div>
           <div><dt>Python CI</dt><dd><strong data-proof="python">3.12 · 3.13</strong><small>both required</small></dd></div>
           <div><dt>Evaluators</dt><dd><strong data-proof="evaluators">7 types</strong><small>deterministic registry</small></dd></div>
           <div><dt>Runtime</dt><dd><strong>Local-first</strong><small>no required API key</small></dd></div>
           <div><dt>Adapters</dt><dd><strong>2 maintained</strong><small>LangGraph + OpenAI Agents</small></dd></div>
         </dl>
-        <p class="proof-note">Benchmarks cover synthetic graphs at 10, 100, and 1,000 nodes. They do not establish production scale. <a href="https://github.com/graphabi/graphabi/tree/main/benchmarks">Inspect the methodology.</a></p>
+        <p class="proof-note">Recorded model, prompt, and tool migrations plus a ten-case semantic regression corpus exercise the same comparison engine. The corpus is project test data, not an industry benchmark. <a href="https://github.com/graphabi/graphabi/tree/main/regression_corpus">Inspect every case.</a> <a href="https://github.com/graphabi/graphabi/blob/main/docs/github-action.md">Run the reusable GitHub Action.</a></p>
       </div>
     </section>
 
@@ -406,7 +408,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
         <div class="contribution-paths">
           <a href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md"><span>Evaluator</span><strong>Add one deterministic contract family.</strong><small>Start with the registry and adversarial tests.</small></a>
           <a href="https://github.com/graphabi/graphabi/issues/new?template=adapter_proposal.yml"><span>Adapter</span><strong>Propose another deterministic trace boundary.</strong><small>Document exact mappings, unsupported cases, and version bounds.</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/new?template=feature_request.yml"><span>Example</span><strong>Add a focused semantic regression case.</strong><small>Keep the default path deterministic, local, and keyless.</small></a>
+          <a href="https://github.com/graphabi/graphabi/tree/main/regression_corpus"><span>Corpus</span><strong>Add a focused semantic regression case.</strong><small>Keep the baseline, candidate, contract, and expected finding inspectable.</small></a>
         </div>
         <p class="contribution-footer"><a href="https://github.com/graphabi/graphabi/issues">Browse all issues</a><a href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Read contributing</a><a href="https://github.com/graphabi/graphabi/discussions">Open a design discussion</a></p>
       </div>
@@ -429,7 +431,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
     <div class="modal-backdrop" data-close-setup></div>
     <section class="setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title" aria-describedby="setup-description" tabindex="-1">
       <div class="setup-dialog-header">
-        <div><p class="eyebrow"><i aria-hidden="true"></i>Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose a setup path that works today. GraphABI is installed from Git until the first package release is approved.</p></div>
+        <div><p class="eyebrow"><i aria-hidden="true"></i>Local setup</p><h2 id="setup-title">Put a semantic check in motion.</h2><p id="setup-description">Choose a setup path that works today. GraphABI is installed from Git until package publication is approved.</p></div>
         <button class="modal-close" type="button" data-close-setup aria-label="Close setup"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path d="M4 4L12 12M12 4L4 12"/></svg></button>
       </div>
       <div class="setup-tabs" role="tablist" aria-label="Setup options">
@@ -442,7 +444,7 @@ Affected downstream nodes: verifier, decision_maker, publisher
       <div class="setup-panels">
         <div class="setup-panel is-active" role="tabpanel" tabindex="0" id="setup-panel-uv" aria-labelledby="setup-tab-uv" data-setup-panel="uv"><div class="setup-panel-meta"><strong>Run from Git with uv</strong><span class="support-badge available">Available now</span></div><p>Run the deterministic demo without a local install or API key.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy uv command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
         <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-pipx" aria-labelledby="setup-tab-pipx" data-setup-panel="pipx" hidden><div class="setup-panel-meta"><strong>Run from Git with pipx</strong><span class="support-badge available">Available now</span></div><p>Use pipx to run the CLI directly from the public repository. GraphABI is not published to PyPI.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>pipx run --spec git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking</code><button class="copy-button" type="button" data-copy-command aria-label="Copy pipx command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
-        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-source" aria-labelledby="setup-tab-source" data-setup-panel="source" hidden><div class="setup-panel-meta"><strong>Clone and sync the repository</strong><span class="support-badge available">Available now</span></div><p>Use the locked development environment for examples, tests, and contribution work.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>git clone https://github.com/graphabi/graphabi.git &amp;&amp; cd graphabi &amp;&amp; uv sync</code><button class="copy-button" type="button" data-copy-command aria-label="Copy source setup command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
+        <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-source" aria-labelledby="setup-tab-source" data-setup-panel="source" hidden><div class="setup-panel-meta"><strong>Clone and sync the repository</strong><span class="support-badge available">Available now</span></div><p>Use the locked development environment for examples, tests, and contribution work.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>git clone https://github.com/graphabi/graphabi.git &amp;&amp; cd graphabi &amp;&amp; make bootstrap</code><button class="copy-button" type="button" data-copy-command aria-label="Copy source setup command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
         <div class="setup-panel" role="tabpanel" tabindex="0" id="setup-panel-langgraph" aria-labelledby="setup-tab-langgraph" data-setup-panel="langgraph" hidden><div class="setup-panel-meta"><strong>Instrument LangGraph</strong><span class="support-badge available">Adapter available</span></div><p>Install GraphABI from Git, then run the included LangGraph research graph or add the adapter to your trace boundary.</p><div class="command-line"><span class="install-prompt" aria-hidden="true">$</span><code data-setup-command>uv add "graphabi @ git+https://github.com/graphabi/graphabi"</code><button class="copy-button" type="button" data-copy-command aria-label="Copy LangGraph command">Copy</button></div><span class="copy-feedback" data-copy-feedback aria-live="polite"></span></div>
       </div>
     </section>
