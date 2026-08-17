@@ -229,7 +229,7 @@
         <div class="code-layout">
           <div class="code-pane">
             <div class="pane-bar"><span class="pane-dot" aria-hidden="true"></span><strong>graphabi.contracts.yaml</strong></div>
-            <pre class="yaml" tabindex="0" role="region" aria-label="Edge contract YAML; scroll if needed"><code><span class="key">version:</span> <span class="string">"0.1"</span>
+            <pre class="yaml" tabindex="0" role="region" aria-label="Edge contract YAML; scroll if needed"><code><span class="key">version:</span> <span class="string">"0.2"</span>
 <span class="key">graph:</span> research_demo
 <span class="key">edges:</span>
   - <span class="key">id:</span> researcher_to_verifier
@@ -278,16 +278,16 @@ Affected downstream nodes: verifier, decision_maker, publisher
 
     <section id="architecture" class="section architecture-section" data-rail-node="Architecture" aria-labelledby="architecture-title">
       <div class="shell">
-        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Framework-independent core</p><h2 id="architecture-title">Adapters observe.<br>Core decides.</h2></div><p>LangGraph integration ends at a versioned trace boundary. Contracts, comparison, impact, and reporting do not import framework types.</p></div>
+        <div class="section-heading"><div><p class="eyebrow"><i aria-hidden="true"></i>Framework-independent core</p><h2 id="architecture-title">Adapters observe.<br>Core decides.</h2></div><p>Framework integrations end at a versioned trace boundary. Contracts, comparison, impact, and reporting do not import framework types.</p></div>
         <div class="arch-frame">
           <p class="pane-label">Framework-independent semantic compatibility pipeline</p>
           <ol class="pipeline">
             <li class="stage stage-outside">
               <span class="stage-tag">Flow</span>
               <strong>Adapters</strong>
-              <small>LangGraph today</small>
+              <small>LangGraph + OpenAI Agents</small>
             </li>
-            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>TraceBundle 0.1</em></li>
+            <li class="stage-edge" aria-hidden="true"><span class="rail"></span><em>TraceBundle 0.2</em></li>
             <li class="stage">
               <span class="stage-tag">Record</span>
               <strong>Trace model</strong>
@@ -376,12 +376,12 @@ Affected downstream nodes: verifier, decision_maker, publisher
       <div class="shell">
         <div class="proof-intro"><p class="eyebrow"><i aria-hidden="true"></i>Measured technical proof</p><h2 id="proof-title">Small surface.<br>Serious checks.</h2><p>Current branch measurements, linked to the source that enforces them.</p></div>
         <dl class="proof-grid">
-          <div><dt>Tests</dt><dd><strong data-proof="tests">115</strong><small>passing locally</small></dd></div>
-          <div><dt>Coverage</dt><dd><strong data-proof="coverage">93.08%</strong><small>85% CI floor</small></dd></div>
+          <div><dt>Tests</dt><dd><strong data-proof="tests">172</strong><small>passing locally</small></dd></div>
+          <div><dt>Coverage</dt><dd><strong data-proof="coverage">91.35%</strong><small>90% CI floor</small></dd></div>
           <div><dt>Python CI</dt><dd><strong data-proof="python">3.12 · 3.13</strong><small>both required</small></dd></div>
           <div><dt>Evaluators</dt><dd><strong data-proof="evaluators">7 types</strong><small>deterministic registry</small></dd></div>
           <div><dt>Runtime</dt><dd><strong>Local-first</strong><small>no required API key</small></dd></div>
-          <div><dt>Adapter</dt><dd><strong>LangGraph</strong><small>one maintained adapter</small></dd></div>
+          <div><dt>Adapters</dt><dd><strong>2 maintained</strong><small>LangGraph + OpenAI Agents</small></dd></div>
         </dl>
         <p class="proof-note">Benchmarks cover synthetic graphs at 10, 100, and 1,000 nodes. They do not establish production scale. <a href="https://github.com/graphabi/graphabi/tree/main/benchmarks">Inspect the methodology.</a></p>
       </div>
@@ -393,8 +393,8 @@ Affected downstream nodes: verifier, decision_maker, publisher
         <ul class="limitations-list">
           <li><span>01</span><p>GraphABI evaluates explicit contracts. It does not understand arbitrary meaning.</p></li>
           <li><span>02</span><p>A passing observed edge does not prove unobserved branches or inputs are compatible.</p></li>
-          <li><span>03</span><p>Trace schema 0.1 does not yet pair repeated loop or retry occurrences.</p></li>
-          <li><span>04</span><p>LangGraph is the only maintained adapter. OpenTelemetry and OpenInference ingestion are planned.</p></li>
+          <li><span>03</span><p>Repeated occurrences require explicit causal identities. Ambiguous duplicates remain invalid.</p></li>
+          <li><span>04</span><p>Telemetry import supports only documented span shapes, and ambiguous mappings remain UNKNOWN.</p></li>
         </ul>
         <a class="limitations-link" href="https://github.com/graphabi/graphabi/blob/main/docs/limitations.md">Read every current limitation <span aria-hidden="true">↗</span></a>
       </div>
@@ -405,8 +405,8 @@ Affected downstream nodes: verifier, decision_maker, publisher
         <div class="contribution-lead"><p class="eyebrow"><i aria-hidden="true"></i>Choose a real edge</p><h2 id="contribution-title">Three useful ways in.</h2><p>Each path has an architecture boundary, acceptance criteria, and a maintainer review point.</p></div>
         <div class="contribution-paths">
           <a href="https://github.com/graphabi/graphabi/blob/main/docs/extensions.md"><span>Evaluator</span><strong>Add one deterministic contract family.</strong><small>Start with the registry and adversarial tests.</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/4"><span>Adapter</span><strong>Prove the trace boundary with a second framework.</strong><small>Design agreement required before implementation.</small></a>
-          <a href="https://github.com/graphabi/graphabi/issues/5"><span>Example</span><strong>Record a real model migration honestly.</strong><small>Optional credentials, explicit cost, no default network call.</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/new?template=adapter_proposal.yml"><span>Adapter</span><strong>Propose another deterministic trace boundary.</strong><small>Document exact mappings, unsupported cases, and version bounds.</small></a>
+          <a href="https://github.com/graphabi/graphabi/issues/new?template=feature_request.yml"><span>Example</span><strong>Add a focused semantic regression case.</strong><small>Keep the default path deterministic, local, and keyless.</small></a>
         </div>
         <p class="contribution-footer"><a href="https://github.com/graphabi/graphabi/issues">Browse all issues</a><a href="https://github.com/graphabi/graphabi/blob/main/CONTRIBUTING.md">Read contributing</a><a href="https://github.com/graphabi/graphabi/discussions">Open a design discussion</a></p>
       </div>
